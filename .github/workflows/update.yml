@@ -2,13 +2,8 @@ name: Update Fishing Calendar
 
 on:
   schedule:
-    - cron: '0 */2 * * *'   # 2시간마다 (UTC) = KST 기준 짝수 시간마다
-  workflow_dispatch:
-    inputs:
-      notify:
-        description: '텔레그램 알림 강제 전송'
-        type: boolean
-        default: false
+    - cron: '0 */2 * * *'   # 2시간마다 (UTC)
+  workflow_dispatch:        # 수동 실행 시 항상 알림 전송
 
 permissions:
   contents: write
@@ -21,7 +16,7 @@ jobs:
       TZ: Asia/Seoul
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      TELEGRAM_NOTIFY: ${{ github.event.inputs.notify == 'true' && '1' || '0' }}
+      TELEGRAM_NOTIFY: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
 
     steps:
       - name: Checkout

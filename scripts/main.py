@@ -8,6 +8,7 @@ import json
 import re
 import os
 import sys
+import time
 import calendar
 from datetime import datetime, date, timedelta, timezone
 
@@ -104,6 +105,7 @@ def crawl_reservations():
         for start_day in start_days:
             url = f"{RESERVATION_URL}&year={y}&month={m:02d}&day={start_day:02d}"
             try:
+                time.sleep(0.5)
                 resp = session.get(url, headers=headers, timeout=10)
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
