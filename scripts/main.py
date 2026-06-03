@@ -20,6 +20,9 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 KST = timezone(timedelta(hours=9))
 
+# 내 예약 이름 목록 (이 이름이 예약자에 있으면 달력에 표시)
+MY_NAMES = ["류*익", "류*읻", "박*교", "이*병"]
+
 
 def get_korean_holidays():
     """한국 공휴일 반환 (holidays 라이브러리 또는 내장 목록)"""
@@ -107,7 +110,20 @@ def _fetch_chunk(args):
                 parts = header_text.split(",")
                 if len(parts) >= 3:
                     tide = parts[2].strip()
-            results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide}
+            # 예약자 이름 추출
+            reserved_names = []
+            for label_div in div.find_all("div", style=re.compile("background-color:#cf0000")):
+                sibling = label_div.find_parent("td")
+                if sibling:
+                    next_td = sibling.find_next_sibling("td")
+                    if next_td:
+                        reserved_names = re.findall(r'[\w*]+님', next_td.get_text())
+            # 내 예약 여부 확인
+            my_booking = any(
+                any(name in r for r in reserved_names)
+                for name in MY_NAMES
+            )
+            results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking}
         return results
     except Exception as e:
         print(f"  오류 ({year}-{month:02d}-{start_day:02d}): {e}", file=sys.stderr)
@@ -190,6 +206,7 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
                 cls += " hday"
 
             rem = tide = ""
+            my_booking = False
             if ds in reservation_data and d >= today:
                 info = reservation_data[ds]
                 if info["status"] == "full":
@@ -197,15 +214,22 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
                 elif info["status"] == "available":
                     rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
                 tide = info.get("tide", "")
+                my_booking = info.get("my_booking", False)
+            elif ds in reservation_data and d < today:
+                my_booking = reservation_data[ds].get("my_booking", False)
+
+            if my_booking:
+                cls += " mine"
 
             hname_html = f'<span class="hname">{hname}</span>' if hname else ""
             rem_html = f'<span class="rem">{rem}</span>' if rem else ""
             tide_html = f'<span class="tide">{tide}</span>' if tide else ""
+            mine_html = '<span class="mybadge">★ 내예약</span>' if my_booking else ""
             link = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
 
             cells.append(
                 f'<td><a class="cell {cls}" href="{link}" target="_blank">'
-                f'<span class="num">{day}</span>{hname_html}{rem_html}{tide_html}</a></td>'
+                f'<span class="num">{day}</span>{hname_html}{mine_html}{rem_html}{tide_html}</a></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
 
@@ -287,6 +311,9 @@ td{{padding:2px;height:54px;vertical-align:top}}
 .empty{{background:#fafafa}} .empty .num{{color:#888}}
 .today{{background:#fff9c4!important;border:2px solid #f9a825!important}}
 .today .num{{color:#e65100!important;font-size:1em}}
+.mine{{background:#e8eaf6!important;border:2px solid #3949ab!important}}
+.mine .num{{color:#1a237e!important}}
+.mybadge{{font-size:.6em;background:#3949ab;color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;font-weight:bold;line-height:1.4}}
 .sat .num{{color:#1565c0}}
 .sun .num{{color:#b71c1c!important}}
 .hday .num{{color:#b71c1c!important}}
@@ -306,6 +333,7 @@ td{{padding:2px;height:54px;vertical-align:top}}
   <div class="legend-item"><span class="dot" style="background:#ffebee;border:1px solid #ef9a9a"></span>마감</div>
   <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
   <div class="legend-item"><span class="dot" style="background:#fafafa;border:1px solid #ddd"></span>미정</div>
+  <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
 </div>
 <div class="months">{"".join(months_html)}</div>
 <p class="foot">마지막 업데이트: {now_kst.strftime("%Y년 %m월 %d일 %H:%M")} KST &nbsp;|&nbsp; 30분마다 자동 새로고침</p>
@@ -377,7 +405,7 @@ def notify_changes(new_data, old_data, korean_holidays):
         send_telegram(msg)
         print(f"변경 알림 {len(alerts)}건 전송")
     else:
-        print("변경 없음 — 알림 생략")
+        print("변경 없음 - 알림 생략")
 
 
 # ─── 메인 ────────────────────────────────────────────────────
