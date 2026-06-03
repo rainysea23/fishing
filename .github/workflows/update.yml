@@ -33,21 +33,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Telegram 직접 테스트
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          TOKEN=$(echo -n "$TELEGRAM_BOT_TOKEN" | tr -d '[:space:]')
-          CHAT=$(echo -n "$TELEGRAM_CHAT_ID" | tr -d '[:space:]')
-          echo "토큰 길이: ${#TOKEN}"
-          echo "CHAT_ID: $CHAT"
-          echo "--- getMe 테스트 ---"
-          curl -s "https://api.telegram.org/bot${TOKEN}/getMe"
-          echo ""
-          echo "--- sendMessage 테스트 ---"
-          curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=$CHAT" \
-            --data-urlencode "text=지도호 알림 테스트"
-
       - name: Run crawler & generate calendar
         run: python scripts/main.py
 
