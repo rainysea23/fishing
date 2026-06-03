@@ -334,38 +334,50 @@ def send_telegram(message):
         return False
 
 
-def notify(reservation_data, korean_holidays):
+def notify_changes(new_data, old_data, korean_holidays):
+    """이전 데이터와 비교해 변경된 휴일 날짜만 알림"""
     today = date.today()
     alerts = []
 
-    for ds, info in sorted(reservation_data.items()):
+    for ds, new_info in sorted(new_data.items()):
         d = date(int(ds[:4]), int(ds[4:6]), int(ds[6:8]))
-        if d < today or info["status"] != "available":
+        if d < today or not is_holiday(d, korean_holidays):
             continue
-        if not is_holiday(d, korean_holidays):
-            continue
+
+        old_info = old_data.get(ds, {})
+        old_status = old_info.get("status", "no_data")
+        old_remaining = old_info.get("remaining")
+        new_status = new_info["status"]
+        new_remaining = new_info.get("remaining")
 
         hname = korean_holidays.get(d, "")
         wd = "월화수목금토일"[d.weekday()]
-        if d.weekday() == 5:
-            dtype = "토요일"
-        elif d.weekday() == 6:
-            dtype = "일요일"
-        else:
-            dtype = f"공휴일 {hname}"
+        dtype = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
+        rem_str = f"{new_remaining}명" if new_remaining is not None else "빈자리"
 
-        rem = f"{info['remaining']}명" if info["remaining"] is not None else "빈자리 있음"
-        alerts.append(f"📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}")
+        # 마감→빈자리: 취소로 자리 생긴 경우
+        if old_status == "full" and new_status == "available":
+            alerts.append(f"🆕 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 빈자리 생겼습니다! {rem_str}")
+
+        # 빈자리 증가: 추가 취소
+        elif old_status == "available" and new_status == "available":
+            if old_remaining is not None and new_remaining is not None and new_remaining > old_remaining:
+                alerts.append(f"📈 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 증가")
+
+        # 처음 등장한 날짜에 빈자리
+        elif old_status == "no_data" and new_status == "available":
+            alerts.append(f"📅 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 예약 오픈! {rem_str}")
 
     if alerts:
         msg = (
-            "🎣 <b>지도호 낚시 휴일·주말 빈자리 알림</b>\n\n"
+            "🎣 <b>지도호 낚시 빈자리 변경 알림</b>\n\n"
             + "\n".join(alerts)
             + f"\n\n<a href='{RESERVATION_URL}'>👉 예약하러 가기</a>"
         )
         send_telegram(msg)
+        print(f"변경 알림 {len(alerts)}건 전송")
     else:
-        print("휴일 빈자리 없음 — 알림 생략")
+        print("변경 없음 — 알림 생략")
 
 
 # ─── 메인 ────────────────────────────────────────────────────
@@ -373,11 +385,14 @@ def notify(reservation_data, korean_holidays):
 def main():
     do_notify = "--notify" in sys.argv or os.environ.get("TELEGRAM_NOTIFY") == "1"
 
-    # 9시·18시 KST에 자동 알림
-    if not do_notify:
-        now_kst = datetime.now(KST)
-        if now_kst.hour in (9, 18):
-            do_notify = True
+    # 이전 데이터 로드 (변경 감지용)
+    old_reservations = {}
+    if os.path.exists("data.json"):
+        try:
+            with open("data.json", encoding="utf-8") as f:
+                old_reservations = json.load(f).get("reservations", {})
+        except Exception:
+            pass
 
     print("크롤링 시작...")
     data = crawl_reservations()
@@ -398,8 +413,8 @@ def main():
         f.write(html)
     print("index.html 생성 완료")
 
-    if do_notify:
-        notify(data, kr_holidays)
+    # 변경사항 있으면 항상 알림 (수동실행 포함)
+    notify_changes(data, old_reservations, kr_holidays)
 
 
 if __name__ == "__main__":
