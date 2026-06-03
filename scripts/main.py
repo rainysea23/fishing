@@ -104,7 +104,7 @@ def crawl_reservations():
         for start_day in start_days:
             url = f"{RESERVATION_URL}&year={y}&month={m:02d}&day={start_day:02d}"
             try:
-                resp = session.get(url, headers=headers, timeout=20)
+                resp = session.get(url, headers=headers, timeout=10)
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
                 day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
