@@ -36,15 +36,17 @@ jobs:
       - name: Telegram 직접 테스트
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "=== Telegram 설정 확인 ==="
-          echo "BOT_TOKEN 앞 15자: ${TELEGRAM_BOT_TOKEN:0:15}"
-          echo "CHAT_ID: $TELEGRAM_CHAT_ID"
-          echo "=== API 직접 호출 ==="
-          RESULT=$(curl -s -X POST \
-            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=🎣 지도호 알림 테스트 - GitHub Actions 연결 성공!")
-          echo "API 응답: $RESULT"
+          TOKEN=$(echo -n "$TELEGRAM_BOT_TOKEN" | tr -d '[:space:]')
+          CHAT=$(echo -n "$TELEGRAM_CHAT_ID" | tr -d '[:space:]')
+          echo "토큰 길이: ${#TOKEN}"
+          echo "CHAT_ID: $CHAT"
+          echo "--- getMe 테스트 ---"
+          curl -s "https://api.telegram.org/bot${TOKEN}/getMe"
+          echo ""
+          echo "--- sendMessage 테스트 ---"
+          curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=$CHAT" \
+            --data-urlencode "text=지도호 알림 테스트"
 
       - name: Run crawler & generate calendar
         run: python scripts/main.py
