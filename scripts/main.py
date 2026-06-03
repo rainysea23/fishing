@@ -142,13 +142,17 @@ def crawl_reservations():
 
     print(f"  총 {len(chunks)}개 청크 순차 크롤링...")
     all_data = {}
+    consecutive_failures = 0
 
     for year, month, start_day in chunks:
+        if consecutive_failures >= 3:
+            print("  연속 3회 실패 — 사이트 다운으로 판단, 나머지 스킵", file=sys.stderr)
+            break
         url = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={start_day:02d}"
         success = False
         for attempt in range(2):  # 실패 시 1회 재시도
             try:
-                resp = session.get(url, headers=headers, timeout=8)
+                resp = session.get(url, headers=headers, timeout=(5, 10))
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
                 day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
@@ -160,7 +164,10 @@ def crawl_reservations():
                 break
             except Exception as e:
                 print(f"  오류 {year}-{month:02d}-{start_day:02d} (시도{attempt+1}): {e}", file=sys.stderr)
-        if not success:
+        if success:
+            consecutive_failures = 0
+        else:
+            consecutive_failures += 1
             print(f"  {year}-{month:02d}-{start_day:02d}: 스킵")
 
     print(f"  수집 완료: {len(all_data)}일")
