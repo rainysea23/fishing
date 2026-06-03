@@ -33,6 +33,21 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
+      - name: Telegram 설정 확인
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "❌ TELEGRAM_BOT_TOKEN 미설정"
+          else
+            echo "✅ TELEGRAM_BOT_TOKEN 설정됨 (앞 10자: ${TELEGRAM_BOT_TOKEN:0:10}...)"
+          fi
+          if [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "❌ TELEGRAM_CHAT_ID 미설정"
+          else
+            echo "✅ TELEGRAM_CHAT_ID 설정됨: $TELEGRAM_CHAT_ID"
+          fi
+          echo "TELEGRAM_NOTIFY=$TELEGRAM_NOTIFY"
+          echo "event_name=${{ github.event_name }}"
+
       - name: Run crawler & generate calendar
         run: python scripts/main.py
 
