@@ -1,6 +1,6 @@
 #!/bin/bash
 cd ~/fishing
-git checkout -- .
+git reset --hard HEAD
 git pull --rebase
 
 export TELEGRAM_BOT_TOKEN="8956265432:AAEZ8dthVr40CxsqxuZbYdV_GZDgEnGL-Xw"
