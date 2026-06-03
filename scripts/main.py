@@ -19,8 +19,12 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 KST = timezone(timedelta(hours=9))
 
-# 내 예약 이름 목록 (이 이름이 예약자에 있으면 달력에 표시)
-MY_NAMES = ["류*익", "류*읻", "박*교", "이*병"]
+# 내 예약 이름 (파란색 ★ 내예약 표시)
+MY_OWN_NAMES = ["류*익", "류*읻"]
+# 동행자 이름 (이름 그대로 표시)
+COMPANION_NAMES = ["박*교", "이*병"]
+# 전체 (하위 호환용)
+MY_NAMES = MY_OWN_NAMES + COMPANION_NAMES
 
 
 def get_korean_holidays():
@@ -104,8 +108,9 @@ def _parse_divs(day_divs):
                 tide = parts[2].strip()
         # 예약자 이름 추출 (예약·입금대기 등 전체 텍스트에서)
         all_names = re.findall(r'[\w*]+님', div.get_text())
-        my_booking = any(any(name in r for r in all_names) for name in MY_NAMES)
-        results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking}
+        my_booking = any(any(name in r for r in all_names) for name in MY_OWN_NAMES)
+        companions = [n for n in COMPANION_NAMES if any(n in r for r in all_names)]
+        results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking, "companions": companions}
     return results
 
 
@@ -199,16 +204,17 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
 
             rem = tide = ""
             my_booking = False
-            if ds in reservation_data and d >= today:
+            companions = []
+            if ds in reservation_data:
                 info = reservation_data[ds]
-                if info["status"] == "full":
-                    rem = "마감"
-                elif info["status"] == "available":
-                    rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
-                tide = info.get("tide", "")
                 my_booking = info.get("my_booking", False)
-            elif ds in reservation_data and d < today:
-                my_booking = reservation_data[ds].get("my_booking", False)
+                companions = info.get("companions", [])
+                if d >= today:
+                    if info["status"] == "full":
+                        rem = "마감"
+                    elif info["status"] == "available":
+                        rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
+                    tide = info.get("tide", "")
 
             if my_booking:
                 cls += " mine"
@@ -217,11 +223,12 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
             rem_html = f'<span class="rem">{rem}</span>' if rem else ""
             tide_html = f'<span class="tide">{tide}</span>' if tide else ""
             mine_html = '<span class="mybadge">★ 내예약</span>' if my_booking else ""
+            companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
             link = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
 
             cells.append(
                 f'<td><a class="cell {cls}" href="{link}" target="_blank">'
-                f'<span class="num">{day}</span>{hname_html}{mine_html}{rem_html}{tide_html}</a></td>'
+                f'<span class="num">{day}</span>{hname_html}{mine_html}{companion_html}{rem_html}{tide_html}</a></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
 
@@ -306,6 +313,7 @@ td{{padding:2px;height:54px;vertical-align:top}}
 .mine{{background:#e8eaf6!important;border:2px solid #3949ab!important}}
 .mine .num{{color:#1a237e!important}}
 .mybadge{{font-size:.6em;background:#3949ab;color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;font-weight:bold;line-height:1.4}}
+.companion{{font-size:.6em;background:#f57c00;color:#fff;border-radius:3px;padding:1px 3px;margin-top:1px;line-height:1.4}}
 .sat .num{{color:#1565c0}}
 .sun .num{{color:#b71c1c!important}}
 .hday .num{{color:#b71c1c!important}}
