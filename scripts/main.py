@@ -102,15 +102,9 @@ def _parse_divs(day_divs):
             parts = header_text.split(",")
             if len(parts) >= 3:
                 tide = parts[2].strip()
-        # 예약자 이름 추출 및 내 예약 확인
-        reserved_names = []
-        for label_div in div.find_all("div", style=re.compile("background-color:#cf0000")):
-            parent_td = label_div.find_parent("td")
-            if parent_td:
-                next_td = parent_td.find_next_sibling("td")
-                if next_td:
-                    reserved_names = re.findall(r'[\w*]+님', next_td.get_text())
-        my_booking = any(any(name in r for r in reserved_names) for name in MY_NAMES)
+        # 예약자 이름 추출 (예약·입금대기 등 전체 텍스트에서)
+        all_names = re.findall(r'[\w*]+님', div.get_text())
+        my_booking = any(any(name in r for r in all_names) for name in MY_NAMES)
         results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking}
     return results
 
@@ -353,10 +347,10 @@ def send_telegram(message):
             timeout=10,
         )
         r.raise_for_status()
-        print("텔레그램 전송 완료!")
+        print("Telegram 전송 완료!")
         return True
     except Exception as e:
-        print(f"텔레그램 오류: {e}", file=sys.stderr)
+        print(f"Telegram 오류: {e}", file=sys.stderr)
         return False
 
 
