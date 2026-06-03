@@ -45,5 +45,6 @@ jobs:
             echo "변경 없음 — 커밋 생략"
           else
             git commit -m "chore: 예약 현황 업데이트 $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M KST')"
+            git pull --rebase origin main
             git push
           fi
