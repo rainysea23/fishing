@@ -148,7 +148,7 @@ def crawl_reservations():
         success = False
         for attempt in range(2):  # 실패 시 1회 재시도
             try:
-                resp = session.get(url, headers=headers, timeout=12)
+                resp = session.get(url, headers=headers, timeout=8)
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
                 day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
