@@ -1,9 +1,7 @@
 name: Update Fishing Calendar
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'   # 30분마다 (UTC)
-  workflow_dispatch:        # 수동 실행 시 항상 알림 전송
+  workflow_dispatch:        # 수동 실행만 허용 (자동 실행은 Oracle VM 크론으로 대체)
 
 permissions:
   contents: write
