@@ -8,8 +8,8 @@ import json
 import re
 import os
 import sys
-import time
 import calendar
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, date, timedelta, timezone
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -73,10 +73,49 @@ def is_holiday(d, korean_holidays):
     return d.weekday() >= 5 or d in korean_holidays
 
 
+def _fetch_chunk(args):
+    """단일 청크 요청 (병렬 실행용)"""
+    year, month, start_day, headers = args
+    url = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={start_day:02d}"
+    try:
+        resp = requests.get(url, headers=headers, timeout=8, verify=False)
+        resp.encoding = "utf-8"
+        soup = BeautifulSoup(resp.text, "lxml")
+        day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
+        results = {}
+        for div in day_divs:
+            date_str = div["id"].replace("new-div-", "")
+            img = div.find("img", alt=re.compile(r"남은자리|예약완료"))
+            remaining = None
+            status = "no_data"
+            if img:
+                alt = img.get("alt", "")
+                if "예약완료" in alt:
+                    remaining = 0
+                    status = "full"
+                else:
+                    mm = re.search(r"남은자리 (\d+)명", alt)
+                    if mm:
+                        remaining = int(mm.group(1))
+                        status = "available" if remaining > 0 else "full"
+            elif div.find("a", class_="btn_re"):
+                status = "available"
+            header_td = div.find("td", {"colspan": "2"})
+            header_text = header_td.get_text(strip=True) if header_td else ""
+            tide = ""
+            if header_text:
+                parts = header_text.split(",")
+                if len(parts) >= 3:
+                    tide = parts[2].strip()
+            results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide}
+        return results
+    except Exception as e:
+        print(f"  오류 ({year}-{month:02d}-{start_day:02d}): {e}", file=sys.stderr)
+        return {}
+
+
 def crawl_reservations():
-    """6월~10월 전체 예약 현황 크롤링 (8일 청크 방식)"""
-    session = requests.Session()
-    session.verify = False
+    """6월~10월 전체 예약 현황 크롤링 (병렬 처리)"""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml",
@@ -84,68 +123,34 @@ def crawl_reservations():
         "Referer": BASE_URL,
     }
 
-    all_data = {}
     today = date.today()
 
-    # 당월부터 5개월치, 월별 4번(1·9·17·25일 시작) 요청
-    for month_offset in range(5):
-        m = today.month + month_offset
-        y = today.year + (m - 1) // 12
+    # 오늘부터 10월 31일까지 8일 단위 청크 목록 생성
+    chunks = []
+    end_date = date(today.year, 10, 31)
+    cur = date(today.year, today.month, 1)
+    while cur <= end_date:
+        for start_day in [1, 9, 17, 25]:
+            if date(cur.year, cur.month, start_day) <= end_date:
+                chunks.append((cur.year, cur.month, start_day, headers))
+        m = cur.month + 1
+        y = cur.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
-        month_days = calendar.monthrange(y, m)[1]
-        start_days = [d for d in [1, 9, 17, 25] if d <= month_days]
+        cur = date(y, m, 1)
 
-        fetched = 0
-        for start_day in start_days:
-            url = f"{RESERVATION_URL}&year={y}&month={m:02d}&day={start_day:02d}"
-            try:
-                resp = session.get(url, headers=headers, timeout=8)
-                resp.encoding = "utf-8"
-                soup = BeautifulSoup(resp.text, "lxml")
-                day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
+    print(f"  총 {len(chunks)}개 청크 병렬 크롤링 시작...")
 
-                for div in day_divs:
-                    date_str = div["id"].replace("new-div-", "")
-                    if date_str in all_data:
-                        continue
+    all_data = {}
+    # 5개씩 병렬 요청
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = {executor.submit(_fetch_chunk, chunk): chunk for chunk in chunks}
+        for future in as_completed(futures):
+            result = future.result()
+            for date_str, info in result.items():
+                if date_str not in all_data:
+                    all_data[date_str] = info
 
-                    img = div.find("img", alt=re.compile(r"남은자리|예약완료"))
-                    remaining = None
-                    status = "no_data"
-
-                    if img:
-                        alt = img.get("alt", "")
-                        if "예약완료" in alt:
-                            remaining = 0
-                            status = "full"
-                        else:
-                            mm = re.search(r"남은자리 (\d+)명", alt)
-                            if mm:
-                                remaining = int(mm.group(1))
-                                status = "available" if remaining > 0 else "full"
-                    elif div.find("a", class_="btn_re"):
-                        status = "available"
-
-                    header_td = div.find("td", {"colspan": "2"})
-                    header_text = header_td.get_text(strip=True) if header_td else ""
-                    tide = ""
-                    if header_text:
-                        parts = header_text.split(",")
-                        if len(parts) >= 3:
-                            tide = parts[2].strip()
-
-                    all_data[date_str] = {
-                        "date": date_str,
-                        "remaining": remaining,
-                        "status": status,
-                        "tide": tide,
-                    }
-                    fetched += 1
-            except Exception as e:
-                print(f"  오류 ({y}-{m:02d}-{start_day:02d}): {e}", file=sys.stderr)
-
-        print(f"  {y}-{m:02d}: {fetched}일 수집")
-
+    print(f"  수집 완료: {len(all_data)}일")
     return all_data
 
 
