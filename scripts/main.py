@@ -241,9 +241,13 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
     )
 
 
-def generate_html(reservation_data, korean_holidays):
+def generate_html(reservation_data, korean_holidays, last_run_at=None, last_changed_at=None):
     today = date.today()
     now_kst = datetime.now(KST)
+    if last_run_at is None:
+        last_run_at = now_kst
+    if last_changed_at is None:
+        last_changed_at = now_kst
 
     available_holidays = [
         (date(int(ds[:4]), int(ds[4:6]), int(ds[6:8])), info)
@@ -336,7 +340,13 @@ td{{padding:2px;height:54px;vertical-align:top}}
   <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
 </div>
 <div class="months">{"".join(months_html)}</div>
-<p class="foot">마지막 업데이트: {now_kst.strftime("%Y년 %m월 %d일 %H:%M")} KST &nbsp;|&nbsp; 30분마다 자동 새로고침</p>
+<p class="foot">
+  🤖 마지막 자동실행: {last_run_at.strftime("%Y년 %m월 %d일 %H:%M")} KST
+  &nbsp;|&nbsp;
+  📊 데이터 변경: {last_changed_at.strftime("%Y년 %m월 %d일 %H:%M")} KST
+  &nbsp;|&nbsp; 1시간마다 자동 갱신 · 30분마다 페이지 새로고침
+  <br><a href="https://github.com/rainysea23/fishing/actions" target="_blank" style="color:#aaa;font-size:.9em">GitHub Actions 실행 이력 보기 ↗</a>
+</p>
 </body>
 </html>"""
 
@@ -414,11 +424,13 @@ def main():
     do_notify = "--notify" in sys.argv or os.environ.get("TELEGRAM_NOTIFY") == "1"
 
     # 이전 데이터 로드 (변경 감지용)
+    old_data_json = {}
     old_reservations = {}
     if os.path.exists("data.json"):
         try:
             with open("data.json", encoding="utf-8") as f:
-                old_reservations = json.load(f).get("reservations", {})
+                old_data_json = json.load(f)
+                old_reservations = old_data_json.get("reservations", {})
         except Exception:
             pass
 
@@ -428,15 +440,34 @@ def main():
 
     kr_holidays = get_korean_holidays()
 
+    now_kst = datetime.now(KST)
+    # 예약 데이터 실제 변경 여부 판단
+    reservations_changed = data != old_reservations
+    # last_changed_at: 데이터가 바뀌면 지금, 아니면 이전 값 유지
+    if reservations_changed or not old_data_json.get("last_changed_at"):
+        last_changed_at = now_kst
+    else:
+        try:
+            last_changed_at = datetime.fromisoformat(old_data_json["last_changed_at"])
+            if last_changed_at.tzinfo is None:
+                last_changed_at = last_changed_at.replace(tzinfo=KST)
+        except Exception:
+            last_changed_at = now_kst
+
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(
-            {"updated_at": datetime.now(KST).isoformat(), "reservations": data},
+            {
+                "last_run_at": now_kst.isoformat(),
+                "last_changed_at": last_changed_at.isoformat(),
+                "updated_at": now_kst.isoformat(),
+                "reservations": data,
+            },
             f,
             ensure_ascii=False,
             indent=2,
         )
 
-    html = generate_html(data, kr_holidays)
+    html = generate_html(data, kr_holidays, last_run_at=now_kst, last_changed_at=last_changed_at)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
     print("index.html 생성 완료")
