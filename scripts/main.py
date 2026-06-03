@@ -93,20 +93,13 @@ def crawl_reservations():
         y = today.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
         month_days = calendar.monthrange(y, m)[1]
-
-        # 각 청크 시작일 결정
-        if month_offset == 0:
-            # 당월: 오늘 이전 청크도 가져옴(과거 예약 현황 표시용)
-            start_days = [d for d in [1, 9, 17, 25] if d <= month_days]
-        else:
-            start_days = [d for d in [1, 9, 17, 25] if d <= month_days]
+        start_days = [d for d in [1, 9, 17, 25] if d <= month_days]
 
         fetched = 0
         for start_day in start_days:
             url = f"{RESERVATION_URL}&year={y}&month={m:02d}&day={start_day:02d}"
             try:
-                time.sleep(0.5)
-                resp = session.get(url, headers=headers, timeout=10)
+                resp = session.get(url, headers=headers, timeout=8)
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
                 day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
