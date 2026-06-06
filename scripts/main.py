@@ -444,7 +444,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
   <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
   <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
   <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
-  <div class="legend-item">📝 더블클릭 = 메모</div>
+  <div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>
 </div>
 <div class="months">{"".join(months_html)}</div>
 <p class="foot">
@@ -490,10 +490,19 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
     var ds=cell.dataset.date;
     var note=localStorage.getItem(P+ds);
     if(note)updateNote(cell,note);
+    // PC: 더블클릭
     cell.addEventListener('dblclick',function(e){{
       e.preventDefault();
       showModal(ds,cell);
     }});
+    // 모바일: 길게 누르기 (0.6초)
+    var t=null;
+    cell.addEventListener('touchstart',function(e){{
+      t=setTimeout(function(){{t=null;showModal(ds,cell);}},600);
+    }},{{passive:true}});
+    cell.addEventListener('touchend',function(){{if(t){{clearTimeout(t);t=null;}}}});
+    cell.addEventListener('touchmove',function(){{if(t){{clearTimeout(t);t=null;}}}});
+    cell.addEventListener('contextmenu',function(e){{e.preventDefault();}});
   }});
 }})();
 </script>
