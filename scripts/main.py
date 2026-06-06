@@ -360,7 +360,7 @@ h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .alert a{{color:#bf360c;font-weight:bold;text-decoration:none}}
 .alert a:hover{{text-decoration:underline}}
 .months{{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1200px;margin:0 auto}}
-.month{{background:white;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.1);flex:1;min-width:270px;max-width:360px}}
+.month{{background:white;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.1);flex:1;min-width:400px;max-width:520px}}
 .month-title{{text-align:center;font-weight:bold;color:#1a5e0e;font-size:1.05em;margin-bottom:10px}}
 table{{width:100%;border-collapse:collapse;table-layout:fixed}}
 th{{padding:5px 2px;text-align:center;font-size:.78em;color:#666;font-weight:normal}}
@@ -406,7 +406,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .note-buttons{{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}}
 .note-buttons button{{padding:6px 16px;border:none;border-radius:5px;cursor:pointer;font-size:.9em}}
 .btn-save{{background:#1a5e0e;color:white}}.btn-delete{{background:#c62828;color:white}}.btn-cancel{{background:#eee;color:#333}}
-@media(max-width:600px){{.month{{min-width:100%}}}}
+@media(max-width:480px){{.month{{min-width:100%;max-width:100%}}}}
 </style>
 </head>
 <body>
