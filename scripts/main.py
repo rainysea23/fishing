@@ -106,8 +106,14 @@ def _parse_divs(day_divs):
             parts = header_text.split(",")
             if len(parts) >= 3:
                 tide = parts[2].strip()
-        # 예약자 이름 추출 (예약·입금대기 등 전체 텍스트에서)
-        all_names = re.findall(r'[\w*]+님', div.get_text())
+        # 예약·입금대기 행에서만 이름 추출 (취소 포함 행 제외)
+        active_rows = [
+            row for row in div.find_all("tr")
+            if "취소" not in row.get_text()
+            and ("예약" in row.get_text() or "입금대기" in row.get_text())
+        ]
+        active_text = " ".join(row.get_text() for row in active_rows) if active_rows else ""
+        all_names = re.findall(r'[\w*]+님', active_text)
         my_booking = any(any(name in r for r in all_names) for name in MY_OWN_NAMES)
         companions = [n for n in COMPANION_NAMES if any(n in r for r in all_names)]
         results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking, "companions": companions}
@@ -234,7 +240,7 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
             link = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
 
             cells.append(
-                f'<td><a class="cell {cls}" href="{link}" target="_blank">'
+                f'<td><a class="cell {cls}" href="{link}" target="_blank" data-date="{ds}">'
                 f'<span class="num">{day}</span>{hname_html}{mine_html}{companion_html}{rem_html}{tide_html}</a></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
@@ -332,6 +338,14 @@ td{{padding:2px;height:54px;vertical-align:top}}
 .legend-item{{display:flex;align-items:center;gap:4px;font-size:.78em}}
 .dot{{width:12px;height:12px;border-radius:3px;display:inline-block}}
 .foot{{text-align:center;color:#999;font-size:.78em;margin-top:14px;padding-bottom:8px}}
+.note{{font-size:.6em;background:#e3f2fd;color:#0d47a1;border-radius:3px;padding:1px 3px;margin-top:1px;line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.note-overlay{{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center}}
+.note-modal{{background:white;border-radius:10px;padding:20px;width:90%;max-width:400px;box-shadow:0 4px 20px rgba(0,0,0,.3)}}
+.note-modal h3{{color:#1a5e0e;margin-bottom:12px;font-size:1em}}
+.note-modal textarea{{width:100%;height:100px;border:1px solid #ccc;border-radius:5px;padding:8px;font-size:.9em;font-family:inherit;resize:vertical;box-sizing:border-box}}
+.note-buttons{{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}}
+.note-buttons button{{padding:6px 16px;border:none;border-radius:5px;cursor:pointer;font-size:.9em}}
+.btn-save{{background:#1a5e0e;color:white}}.btn-delete{{background:#c62828;color:white}}.btn-cancel{{background:#eee;color:#333}}
 @media(max-width:600px){{.month{{min-width:100%}}}}
 </style>
 </head>
@@ -354,6 +368,54 @@ td{{padding:2px;height:54px;vertical-align:top}}
   &nbsp;|&nbsp; 1시간마다 자동 갱신 · 30분마다 페이지 새로고침
   <br><a href="https://github.com/rainysea23/fishing/actions" target="_blank" style="color:#aaa;font-size:.9em">GitHub Actions 실행 이력 보기 ↗</a>
 </p>
+<script>
+(function(){{
+  var P='jido_note_';
+  function label(ds){{return ds.slice(0,4)+'년 '+parseInt(ds.slice(4,6))+'월 '+parseInt(ds.slice(6,8))+'일';}}
+  function updateNote(cell,note){{
+    var el=cell.querySelector('.note');
+    if(note){{if(!el){{el=document.createElement('span');el.className='note';cell.appendChild(el);}}el.textContent=note;}}
+    else{{if(el)el.remove();}}
+  }}
+  function showModal(ds,cell){{
+    var key=P+ds,current=localStorage.getItem(key)||'';
+    var ov=document.createElement('div');ov.className='note-overlay';
+    var mo=document.createElement('div');mo.className='note-modal';
+    mo.innerHTML='<h3>📝 메모 — '+label(ds)+'</h3>'
+      +'<textarea id="ni" placeholder="메모를 입력하세요..."></textarea>'
+      +'<div class="note-buttons">'
+      +'<button class="btn-cancel">취소</button>'
+      +'<button class="btn-delete">삭제</button>'
+      +'<button class="btn-save">저장</button>'
+      +'</div>';
+    ov.appendChild(mo);document.body.appendChild(ov);
+    var ta=mo.querySelector('#ni');ta.value=current;ta.focus();
+    var close=function(){{document.body.removeChild(ov);}};
+    mo.querySelector('.btn-save').onclick=function(){{
+      var v=ta.value.trim();
+      if(v)localStorage.setItem(key,v);else localStorage.removeItem(key);
+      updateNote(cell,v);close();
+    }};
+    mo.querySelector('.btn-delete').onclick=function(){{localStorage.removeItem(key);updateNote(cell,'');close();}};
+    mo.querySelector('.btn-cancel').onclick=close;
+    ov.addEventListener('click',function(e){{if(e.target===ov)close();}});
+  }}
+  document.querySelectorAll('a.cell[data-date]').forEach(function(cell){{
+    var ds=cell.dataset.date;
+    var note=localStorage.getItem(P+ds);
+    if(note)updateNote(cell,note);
+    var timer=null;
+    cell.addEventListener('click',function(e){{
+      e.preventDefault();
+      if(timer){{clearTimeout(timer);timer=null;showModal(ds,cell);}}
+      else{{
+        var href=cell.getAttribute('href');
+        timer=setTimeout(function(){{timer=null;window.open(href,'_blank');}},250);
+      }}
+    }});
+  }});
+}})();
+</script>
 </body>
 </html>"""
 
@@ -404,10 +466,13 @@ def notify_changes(new_data, old_data, korean_holidays):
         if old_status == "full" and new_status == "available":
             alerts.append(f"🆕 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 빈자리 생겼습니다! {rem_str}")
 
-        # 빈자리 증가: 추가 취소
+        # 빈자리 변화: 취소로 증가 or 예약으로 감소
         elif old_status == "available" and new_status == "available":
-            if old_remaining is not None and new_remaining is not None and new_remaining > old_remaining:
-                alerts.append(f"📈 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 증가")
+            if old_remaining is not None and new_remaining is not None:
+                if new_remaining > old_remaining:
+                    alerts.append(f"📈 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 증가")
+                elif new_remaining < old_remaining:
+                    alerts.append(f"📉 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 감소")
 
         # 처음 등장한 날짜에 빈자리
         elif old_status == "no_data" and new_status == "available":
