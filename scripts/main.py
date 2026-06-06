@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""지도호 낚시 예약 현황 크롤러 & 캘린더 생성기 & 텔레그램 알림"""
+"""지도호·라온호 낚시 예약 현황 크롤러 & 캘린더 생성기 & 텔레그램 알림"""
 
 import requests
 import urllib3
@@ -13,17 +13,22 @@ from datetime import datetime, date, timedelta, timezone
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-BASE_URL = "http://www.newjidoho.com"
-RESERVATION_URL = f"{BASE_URL}/index.php?mid=bk"
+JIDO_BASE_URL = "http://www.newjidoho.com"
+JIDO_URL      = f"{JIDO_BASE_URL}/index.php?mid=bk"
+RAON_BASE_URL = "http://www.raonfishing.com"
+RAON_URL      = f"{RAON_BASE_URL}/index.php?mid=bk"
+# 하위 호환
+BASE_URL = JIDO_BASE_URL
+RESERVATION_URL = JIDO_URL
+
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
 KST = timezone(timedelta(hours=9))
 
 # 내 예약 이름 (파란색 ★ 내예약 표시)
 MY_OWN_NAMES = ["류*익", "류*읻"]
 # 동행자 이름 (이름 그대로 표시)
 COMPANION_NAMES = ["박*교", "이*병"]
-# 전체 (하위 호환용)
 MY_NAMES = MY_OWN_NAMES + COMPANION_NAMES
 
 
@@ -44,7 +49,6 @@ def get_korean_holidays():
     except ImportError:
         pass
 
-    # 내장 2025-2026 공휴일
     h = {}
     entries = [
         (2025, 1, 1, "신정"),
@@ -80,7 +84,7 @@ def is_holiday(d, korean_holidays):
 
 
 def _parse_divs(day_divs):
-    """BeautifulSoup div 목록에서 날짜별 데이터 추출"""
+    """BeautifulSoup div 목록에서 날짜별 데이터 추출 (지도호·라온호 공통)"""
     results = {}
     for div in day_divs:
         date_str = div["id"].replace("new-div-", "")
@@ -116,25 +120,27 @@ def _parse_divs(day_divs):
         all_names = re.findall(r'[\w*]+님', active_text)
         my_booking = any(any(name in r for r in all_names) for name in MY_OWN_NAMES)
         companions = [n for n in COMPANION_NAMES if any(n in r for r in all_names)]
-        results[date_str] = {"date": date_str, "remaining": remaining, "status": status, "tide": tide, "my_booking": my_booking, "companions": companions}
+        results[date_str] = {
+            "date": date_str, "remaining": remaining, "status": status,
+            "tide": tide, "my_booking": my_booking, "companions": companions,
+        }
     return results
 
 
-def crawl_reservations():
-    """6월~10월 전체 예약 현황 크롤링 (순차 + 재시도)"""
+def _crawl_site(base_url, reservation_url, label=""):
+    """범용 크롤러 — 월별 1·9·17·25일 청킹, 실패 시 1회 재시도"""
     session = requests.Session()
     session.verify = False
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml",
         "Accept-Language": "ko-KR,ko;q=0.9",
-        "Referer": BASE_URL,
+        "Referer": base_url,
     }
 
     today = date.today()
     end_date = date(today.year, 10, 31)
 
-    # 청크 목록 생성 (월별 1·9·17·25일 시작)
     chunks = []
     cur = date(today.year, today.month, 1)
     while cur <= end_date:
@@ -146,17 +152,18 @@ def crawl_reservations():
         m = ((m - 1) % 12) + 1
         cur = date(y, m, 1)
 
-    print(f"  총 {len(chunks)}개 청크 순차 크롤링...")
+    tag = f"[{label}] " if label else ""
+    print(f"  {tag}총 {len(chunks)}개 청크 크롤링...")
     all_data = {}
     consecutive_failures = 0
 
     for year, month, start_day in chunks:
         if consecutive_failures >= 3:
-            print("  연속 3회 실패 — 사이트 다운으로 판단, 나머지 스킵", file=sys.stderr)
+            print(f"  {tag}연속 3회 실패 — 사이트 다운으로 판단, 나머지 스킵", file=sys.stderr)
             break
-        url = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={start_day:02d}"
+        url = f"{reservation_url}&year={year}&month={month:02d}&day={start_day:02d}"
         success = False
-        for attempt in range(2):  # 실패 시 1회 재시도
+        for attempt in range(2):
             try:
                 resp = session.get(url, headers=headers, timeout=(5, 10))
                 resp.encoding = "utf-8"
@@ -165,24 +172,45 @@ def crawl_reservations():
                 for date_str, info in _parse_divs(day_divs).items():
                     if date_str not in all_data:
                         all_data[date_str] = info
-                print(f"  {year}-{month:02d}-{start_day:02d}: {len(day_divs)}일")
+                print(f"  {tag}{year}-{month:02d}-{start_day:02d}: {len(day_divs)}일")
                 success = True
                 break
             except Exception as e:
-                print(f"  오류 {year}-{month:02d}-{start_day:02d} (시도{attempt+1}): {e}", file=sys.stderr)
+                print(f"  {tag}오류 {year}-{month:02d}-{start_day:02d} (시도{attempt+1}): {e}", file=sys.stderr)
         if success:
             consecutive_failures = 0
         else:
             consecutive_failures += 1
-            print(f"  {year}-{month:02d}-{start_day:02d}: 스킵")
+            print(f"  {tag}{year}-{month:02d}-{start_day:02d}: 스킵")
 
-    print(f"  수집 완료: {len(all_data)}일")
+    print(f"  {tag}수집 완료: {len(all_data)}일")
     return all_data
+
+
+def crawl_reservations():
+    """지도호 예약 현황 크롤링"""
+    return _crawl_site(JIDO_BASE_URL, JIDO_URL, "지도호")
+
+
+def crawl_raon():
+    """라온호 예약 현황 크롤링"""
+    return _crawl_site(RAON_BASE_URL, RAON_URL, "라온호")
 
 
 # ─── HTML 생성 ───────────────────────────────────────────────
 
-def gen_month(year, month, today, reservation_data, korean_holidays):
+def _boat_row(label, cls_boat, status_cls, rem, tide, link):
+    """배 한 줄 HTML 생성"""
+    tide_html = f'<span class="tide">{tide}</span>' if tide else ""
+    return (
+        f'<a class="boat {cls_boat} {status_cls}" href="{link}" target="_blank">'
+        f'<span class="bname">{label}</span>'
+        f'<span class="brem">{rem}</span>'
+        f'{tide_html}</a>'
+    )
+
+
+def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
     mn = "1월 2월 3월 4월 5월 6월 7월 8월 9월 10월 11월 12월".split()[month - 1]
     rows = []
     for week in calendar.monthcalendar(year, month):
@@ -193,55 +221,69 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
                 continue
             d = date(year, month, day)
             ds = d.strftime("%Y%m%d")
-            is_sat = wd == 5
-            is_sun_flag = wd == 6
-            is_pub = d in korean_holidays
-            hname = korean_holidays.get(d, "")
+            is_sat    = wd == 5
+            is_sun    = wd == 6
+            is_pub    = d in korean_holidays
+            hname     = korean_holidays.get(d, "")
+
+            cls = "past" if d < today else "base"
+            if d == today:          cls += " today"
+            if is_sat:              cls += " sat"
+            if is_sun:              cls += " sun"
+            if is_pub and not is_sun: cls += " hday"
+
+            def boat_info(data):
+                rem = status_cls = tide = ""
+                my_booking = False
+                companions = []
+                if ds in data:
+                    info = data[ds]
+                    my_booking = info.get("my_booking", False)
+                    companions = info.get("companions", [])
+                    if d >= today:
+                        st = info["status"]
+                        if st == "full":
+                            rem, status_cls = "마감", "full"
+                        elif st == "available":
+                            rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
+                            status_cls = "avail"
+                        else:
+                            status_cls = "empty"
+                        tide = info.get("tide", "")
+                    else:
+                        status_cls = "empty"
+                else:
+                    status_cls = "empty"
+                return rem, status_cls, tide, my_booking, companions
+
+            jido_rem, jido_cls, jido_tide, jido_mine, jido_comp = boat_info(jido_data)
+            raon_rem, raon_cls, raon_tide, raon_mine, raon_comp = boat_info(raon_data)
+
+            my_booking = jido_mine or raon_mine
+            companions = list(dict.fromkeys(jido_comp + raon_comp))  # 중복 제거, 순서 유지
+            if my_booking: cls += " mine"
+
+            hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
+            mine_html      = '<span class="mybadge">★ 내예약</span>' if my_booking else ""
+            companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
+
+            jido_link = f"{JIDO_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
+            raon_link = f"{RAON_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
 
             if d < today:
-                cls = "past"
-            elif ds in reservation_data:
-                st = reservation_data[ds]["status"]
-                cls = "avail" if st == "available" else ("full" if st == "full" else "empty")
+                boats_html = ""
             else:
-                cls = "empty"
-
-            if d == today:
-                cls += " today"
-            if is_sat:
-                cls += " sat"
-            if is_sun_flag:
-                cls += " sun"
-            if is_pub and not is_sun_flag:
-                cls += " hday"
-
-            rem = tide = ""
-            my_booking = False
-            companions = []
-            if ds in reservation_data:
-                info = reservation_data[ds]
-                my_booking = info.get("my_booking", False)
-                companions = info.get("companions", [])
-                if d >= today:
-                    if info["status"] == "full":
-                        rem = "마감"
-                    elif info["status"] == "available":
-                        rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
-                    tide = info.get("tide", "")
-
-            if my_booking:
-                cls += " mine"
-
-            hname_html = f'<span class="hname">{hname}</span>' if hname else ""
-            rem_html = f'<span class="rem">{rem}</span>' if rem else ""
-            tide_html = f'<span class="tide">{tide}</span>' if tide else ""
-            mine_html = '<span class="mybadge">★ 내예약</span>' if my_booking else ""
-            companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
-            link = f"{RESERVATION_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
+                boats_html = (
+                    '<div class="boats">'
+                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_tide, jido_link)
+                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_tide, raon_link)
+                    + '</div>'
+                )
 
             cells.append(
-                f'<td><a class="cell {cls}" href="{link}" target="_blank" data-date="{ds}">'
-                f'<span class="num">{day}</span>{hname_html}{mine_html}{companion_html}{rem_html}{tide_html}</a></td>'
+                f'<td><div class="cell {cls}" data-date="{ds}">'
+                f'<span class="num">{day}</span>{hname_html}{mine_html}{companion_html}'
+                f'{boats_html}</div></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
 
@@ -254,7 +296,7 @@ def gen_month(year, month, today, reservation_data, korean_holidays):
     )
 
 
-def generate_html(reservation_data, korean_holidays, last_run_at=None, last_changed_at=None):
+def generate_html(jido_data, raon_data, korean_holidays, last_run_at=None, last_changed_at=None):
     today = date.today()
     now_kst = datetime.now(KST)
     if last_run_at is None:
@@ -262,24 +304,33 @@ def generate_html(reservation_data, korean_holidays, last_run_at=None, last_chan
     if last_changed_at is None:
         last_changed_at = now_kst
 
-    available_holidays = [
-        (date(int(ds[:4]), int(ds[4:6]), int(ds[6:8])), info)
-        for ds, info in sorted(reservation_data.items())
-        if info["status"] == "available"
-        and is_holiday(date(int(ds[:4]), int(ds[4:6]), int(ds[6:8])), korean_holidays)
-        and date(int(ds[:4]), int(ds[4:6]), int(ds[6:8])) >= today
-    ]
+    def holiday_available(data, label, res_url):
+        result = []
+        for ds, info in sorted(data.items()):
+            d = date(int(ds[:4]), int(ds[4:6]), int(ds[6:8]))
+            if info["status"] == "available" and is_holiday(d, korean_holidays) and d >= today:
+                result.append((d, info, label, res_url))
+        return result
+
+    available = (
+        holiday_available(jido_data, "지도호", JIDO_URL)
+        + holiday_available(raon_data, "라온호", RAON_URL)
+    )
+    available.sort(key=lambda x: (x[0], x[2]))
 
     alert_html = ""
-    if available_holidays:
+    if available:
         items = []
-        for d, info in available_holidays:
+        for d, info, label, res_url in available:
             hname = korean_holidays.get(d, "")
             wd = "월화수목금토일"[d.weekday()]
             dtype = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
-            rem = f"{info['remaining']}명" if info["remaining"] is not None else "빈자리"
-            link = f"{RESERVATION_URL}&year={d.year}&month={d.month:02d}&day={d.day:02d}&mode=list#list"
-            items.append(f'<li><a href="{link}" target="_blank">📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}</a></li>')
+            rem   = f"{info['remaining']}명" if info["remaining"] is not None else "빈자리"
+            link  = f"{res_url}&year={d.year}&month={d.month:02d}&day={d.day:02d}&mode=list#list"
+            items.append(
+                f'<li><a href="{link}" target="_blank">'
+                f'📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] [{label}] — 남은자리 {rem}</a></li>'
+            )
         alert_html = f'<div class="alert"><h3>🎣 휴일·주말 빈자리 현황</h3><ul>{"".join(items)}</ul></div>'
 
     months_html = []
@@ -287,7 +338,7 @@ def generate_html(reservation_data, korean_holidays, last_run_at=None, last_chan
         m = today.month + offset
         y = today.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
-        months_html.append(gen_month(y, m, today, reservation_data, korean_holidays))
+        months_html.append(gen_month(y, m, today, jido_data, raon_data, korean_holidays))
 
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -295,13 +346,13 @@ def generate_html(reservation_data, korean_holidays, last_run_at=None, last_chan
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="refresh" content="1800">
-<title>지도호 낚시 예약 현황</title>
+<title>지도호·라온호 낚시 예약 현황</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:'Malgun Gothic',AppleGothic,sans-serif;background:#eef4eb;padding:12px;color:#333}}
 h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .subtitle{{text-align:center;font-size:.85em;color:#555;margin-bottom:12px}}
-.subtitle a{{color:#1a5e0e;text-decoration:none}}
+.subtitle a{{color:#1a5e0e;text-decoration:none;margin:0 4px}}
 .alert{{background:#fffde7;border:2px solid #f9a825;border-radius:8px;padding:12px 16px;margin:0 auto 16px;max-width:1200px}}
 .alert h3{{color:#e65100;margin-bottom:8px;font-size:1em}}
 .alert ul{{list-style:none}}
@@ -314,17 +365,13 @@ h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 table{{width:100%;border-collapse:collapse}}
 th{{padding:5px 2px;text-align:center;font-size:.78em;color:#666;font-weight:normal}}
 th.sat{{color:#1565c0}} th.sun{{color:#b71c1c}}
-td{{padding:2px;height:54px;vertical-align:top}}
-.cell{{height:100%;border-radius:5px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;cursor:pointer;text-decoration:none;transition:filter .15s}}
-.cell:hover{{filter:brightness(.9)}}
+td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
+.cell{{min-height:66px;border-radius:5px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;cursor:default;transition:filter .15s}}
+.cell:hover{{filter:brightness(.95)}}
 .num{{font-weight:bold;font-size:.88em;line-height:1.3}}
-.rem{{font-size:.7em;font-weight:bold;margin-top:1px}}
-.tide{{font-size:.6em;color:#888;margin-top:1px}}
 .hname{{font-size:.58em;color:#c62828;line-height:1.1;margin-top:1px;text-align:center}}
-.full{{background:#ffebee}} .full .num{{color:#c62828}} .full .rem{{color:#c62828}}
-.avail{{background:#e8f5e9}} .avail .num{{color:#1b5e20}} .avail .rem{{color:#2e7d32}}
 .past{{background:#f5f5f5}} .past .num{{color:#bbb}}
-.empty{{background:#fafafa}} .empty .num{{color:#888}}
+.base{{background:#fafafa}} .base .num{{color:#555}}
 .today{{background:#fff9c4!important;border:2px solid #f9a825!important}}
 .today .num{{color:#e65100!important;font-size:1em}}
 .mine{{background:#e8eaf6!important;border:2px solid #3949ab!important}}
@@ -334,7 +381,19 @@ td{{padding:2px;height:54px;vertical-align:top}}
 .sat .num{{color:#1565c0}}
 .sun .num{{color:#b71c1c!important}}
 .hday .num{{color:#b71c1c!important}}
-.legend{{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 auto 14px;max-width:700px}}
+.boats{{width:100%;display:flex;flex-direction:column;gap:2px;margin-top:3px}}
+.boat{{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:.68em;text-decoration:none;cursor:pointer;transition:filter .15s}}
+.boat:hover{{filter:brightness(.88)}}
+.bname{{font-weight:bold;font-size:.85em;min-width:18px}}
+.brem{{font-weight:bold}}
+.tide{{font-size:.6em;color:#888;margin-left:auto}}
+.jido.avail{{background:#c8f0c0;color:#1b5e20}}
+.jido.full{{background:#ffcdd2;color:#b71c1c}}
+.jido.empty{{background:#f0f0f0;color:#aaa}}
+.raon.avail{{background:#ffe0b2;color:#e65100}}
+.raon.full{{background:#ffcdd2;color:#b71c1c}}
+.raon.empty{{background:#f0f0f0;color:#aaa}}
+.legend{{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 auto 14px;max-width:900px}}
 .legend-item{{display:flex;align-items:center;gap:4px;font-size:.78em}}
 .dot{{width:12px;height:12px;border-radius:3px;display:inline-block}}
 .foot{{text-align:center;color:#999;font-size:.78em;margin-top:14px;padding-bottom:8px}}
@@ -350,15 +409,20 @@ td{{padding:2px;height:54px;vertical-align:top}}
 </style>
 </head>
 <body>
-<h1>🎣 지도호 낚시 예약 현황</h1>
-<p class="subtitle"><a href="{RESERVATION_URL}" target="_blank">원본 예약 페이지 바로가기 ↗</a></p>
+<h1>🎣 지도호·라온호 낚시 예약 현황</h1>
+<p class="subtitle">
+  <a href="{JIDO_URL}" target="_blank">지도호 예약 페이지 ↗</a>
+  &nbsp;|&nbsp;
+  <a href="{RAON_URL}" target="_blank">라온호 예약 페이지 ↗</a>
+</p>
 {alert_html}
 <div class="legend">
-  <div class="legend-item"><span class="dot" style="background:#e8f5e9;border:1px solid #81c784"></span>예약가능</div>
-  <div class="legend-item"><span class="dot" style="background:#ffebee;border:1px solid #ef9a9a"></span>마감</div>
+  <div class="legend-item"><span class="dot" style="background:#c8f0c0;border:1px solid #81c784"></span>지도호 예약가능</div>
+  <div class="legend-item"><span class="dot" style="background:#ffe0b2;border:1px solid #ffb74d"></span>라온호 예약가능</div>
+  <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
   <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
-  <div class="legend-item"><span class="dot" style="background:#fafafa;border:1px solid #ddd"></span>미정</div>
   <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
+  <div class="legend-item">📝 더블클릭 = 메모</div>
 </div>
 <div class="months">{"".join(months_html)}</div>
 <p class="foot">
@@ -400,18 +464,13 @@ td{{padding:2px;height:54px;vertical-align:top}}
     mo.querySelector('.btn-cancel').onclick=close;
     ov.addEventListener('click',function(e){{if(e.target===ov)close();}});
   }}
-  document.querySelectorAll('a.cell[data-date]').forEach(function(cell){{
+  document.querySelectorAll('div.cell[data-date]').forEach(function(cell){{
     var ds=cell.dataset.date;
     var note=localStorage.getItem(P+ds);
     if(note)updateNote(cell,note);
-    var timer=null;
-    cell.addEventListener('click',function(e){{
+    cell.addEventListener('dblclick',function(e){{
       e.preventDefault();
-      if(timer){{clearTimeout(timer);timer=null;showModal(ds,cell);}}
-      else{{
-        var href=cell.getAttribute('href');
-        timer=setTimeout(function(){{timer=null;window.open(href,'_blank');}},250);
-      }}
+      showModal(ds,cell);
     }});
   }});
 }})();
@@ -441,8 +500,10 @@ def send_telegram(message):
         return False
 
 
-def notify_changes(new_data, old_data, korean_holidays):
+def notify_changes(new_data, old_data, korean_holidays, label="지도호", res_url=None):
     """이전 데이터와 비교해 변경된 휴일 날짜만 알림"""
+    if res_url is None:
+        res_url = JIDO_URL
     today = date.today()
     alerts = []
 
@@ -451,22 +512,20 @@ def notify_changes(new_data, old_data, korean_holidays):
         if d < today or not is_holiday(d, korean_holidays):
             continue
 
-        old_info = old_data.get(ds, {})
-        old_status = old_info.get("status", "no_data")
+        old_info      = old_data.get(ds, {})
+        old_status    = old_info.get("status", "no_data")
         old_remaining = old_info.get("remaining")
-        new_status = new_info["status"]
+        new_status    = new_info["status"]
         new_remaining = new_info.get("remaining")
 
-        hname = korean_holidays.get(d, "")
-        wd = "월화수목금토일"[d.weekday()]
-        dtype = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
+        hname   = korean_holidays.get(d, "")
+        wd      = "월화수목금토일"[d.weekday()]
+        dtype   = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
         rem_str = f"{new_remaining}명" if new_remaining is not None else "빈자리"
 
-        # 마감→빈자리: 취소로 자리 생긴 경우
         if old_status == "full" and new_status == "available":
             alerts.append(f"🆕 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 빈자리 생겼습니다! {rem_str}")
 
-        # 빈자리 변화: 취소로 증가 or 예약으로 감소
         elif old_status == "available" and new_status == "available":
             if old_remaining is not None and new_remaining is not None:
                 if new_remaining > old_remaining:
@@ -474,49 +533,47 @@ def notify_changes(new_data, old_data, korean_holidays):
                 elif new_remaining < old_remaining:
                     alerts.append(f"📉 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 감소")
 
-        # 처음 등장한 날짜에 빈자리
         elif old_status == "no_data" and new_status == "available":
             alerts.append(f"📅 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 예약 오픈! {rem_str}")
 
     if alerts:
         msg = (
-            "🎣 <b>지도호 낚시 빈자리 변경 알림</b>\n\n"
+            f"🎣 <b>{label} 빈자리 변경 알림</b>\n\n"
             + "\n".join(alerts)
-            + f"\n\n<a href='{RESERVATION_URL}'>👉 예약하러 가기</a>"
+            + f"\n\n<a href='{res_url}'>👉 예약하러 가기</a>"
         )
         send_telegram(msg)
-        print(f"변경 알림 {len(alerts)}건 전송")
+        print(f"[{label}] 변경 알림 {len(alerts)}건 전송")
     else:
-        print("변경 없음 - 알림 생략")
+        print(f"[{label}] 변경 없음 - 알림 생략")
 
 
 # ─── 메인 ────────────────────────────────────────────────────
 
 def main():
-    do_notify = "--notify" in sys.argv or os.environ.get("TELEGRAM_NOTIFY") == "1"
-
-    # 이전 데이터 로드 (변경 감지용)
-    old_data_json = {}
-    old_reservations = {}
+    # 이전 데이터 로드
+    old_data_json      = {}
+    old_jido           = {}
+    old_raon           = {}
     if os.path.exists("data.json"):
         try:
             with open("data.json", encoding="utf-8") as f:
                 old_data_json = json.load(f)
-                old_reservations = old_data_json.get("reservations", {})
+                old_jido = old_data_json.get("reservations", {})
+                old_raon = old_data_json.get("raon_reservations", {})
         except Exception:
             pass
 
-    print("크롤링 시작...")
-    data = crawl_reservations()
-    print(f"수집 완료: {len(data)}일")
+    print("=== 지도호 크롤링 ===")
+    jido_data = crawl_reservations()
+    print("=== 라온호 크롤링 ===")
+    raon_data = crawl_raon()
 
     kr_holidays = get_korean_holidays()
-
     now_kst = datetime.now(KST)
-    # 예약 데이터 실제 변경 여부 판단
-    reservations_changed = data != old_reservations
-    # last_changed_at: 데이터가 바뀌면 지금, 아니면 이전 값 유지
-    if reservations_changed or not old_data_json.get("last_changed_at"):
+
+    changed = jido_data != old_jido or raon_data != old_raon
+    if changed or not old_data_json.get("last_changed_at"):
         last_changed_at = now_kst
     else:
         try:
@@ -529,23 +586,25 @@ def main():
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(
             {
-                "last_run_at": now_kst.isoformat(),
-                "last_changed_at": last_changed_at.isoformat(),
-                "updated_at": now_kst.isoformat(),
-                "reservations": data,
+                "last_run_at":       now_kst.isoformat(),
+                "last_changed_at":   last_changed_at.isoformat(),
+                "updated_at":        now_kst.isoformat(),
+                "reservations":      jido_data,
+                "raon_reservations": raon_data,
             },
             f,
             ensure_ascii=False,
             indent=2,
         )
 
-    html = generate_html(data, kr_holidays, last_run_at=now_kst, last_changed_at=last_changed_at)
+    html = generate_html(jido_data, raon_data, kr_holidays,
+                         last_run_at=now_kst, last_changed_at=last_changed_at)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
     print("index.html 생성 완료")
 
-    # 변경사항 있으면 항상 알림 (수동실행 포함)
-    notify_changes(data, old_reservations, kr_holidays)
+    notify_changes(jido_data, old_jido, kr_holidays, label="지도호", res_url=JIDO_URL)
+    notify_changes(raon_data, old_raon, kr_holidays, label="라온호", res_url=RAON_URL)
 
 
 if __name__ == "__main__":
