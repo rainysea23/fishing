@@ -199,16 +199,15 @@ def crawl_raon():
 
 # ─── HTML 생성 ───────────────────────────────────────────────
 
-def _boat_row(label, cls_boat, status_cls, rem, tide, link, my_booking=False):
-    """배 한 줄 HTML 생성"""
-    tide_html = f'<span class="tide">{tide}</span>' if tide else ""
+def _boat_row(label, cls_boat, status_cls, rem, link, my_booking=False):
+    """배 한 줄 HTML 생성 (물때는 날짜 옆에 별도 표시)"""
     mine_cls  = " mine" if my_booking else ""
     star_html = '<span class="bstar">★</span>' if my_booking else ""
     return (
         f'<a class="boat {cls_boat} {status_cls}{mine_cls}" href="{link}" target="_blank">'
         f'{star_html}'
         f'<span class="brem">{rem}</span>'
-        f'{tide_html}</a>'
+        f'</a>'
     )
 
 
@@ -265,6 +264,9 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
             companions = list(dict.fromkeys(jido_comp + raon_comp))  # 중복 제거, 순서 유지
             if my_booking: cls += " mine"
 
+            # 물때: 지도호 우선, 없으면 라온호
+            tide = jido_tide or raon_tide
+            tide_html      = f'<span class="tide">{tide}</span>' if tide else ""
             hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
             companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
 
@@ -276,14 +278,15 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
             else:
                 boats_html = (
                     '<div class="boats">'
-                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_tide, jido_link, jido_mine)
-                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_tide, raon_link, raon_mine)
+                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_link, jido_mine)
+                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_link, raon_mine)
                     + '</div>'
                 )
 
             cells.append(
                 f'<td><div class="cell {cls}" data-date="{ds}">'
-                f'<span class="num">{day}</span>{hname_html}{companion_html}'
+                f'<div class="day-hd"><span class="num">{day}</span>{tide_html}</div>'
+                f'{hname_html}{companion_html}'
                 f'{boats_html}</div></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
@@ -384,7 +387,9 @@ th.sat{{color:#1565c0}} th.sun{{color:#b71c1c}}
 td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .cell{{min-height:66px;border-radius:5px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;cursor:default;transition:filter .15s}}
 .cell:hover{{filter:brightness(.95)}}
+.day-hd{{display:flex;align-items:baseline;justify-content:center;gap:2px;width:100%}}
 .num{{font-weight:bold;font-size:.88em;line-height:1.3}}
+.tide{{font-size:.58em;color:#888}}
 .hname{{font-size:.58em;color:#c62828;line-height:1.1;margin-top:1px;text-align:center}}
 .past{{background:#f5f5f5}} .past .num{{color:#bbb}}
 .base{{background:#fafafa}} .base .num{{color:#555}}
@@ -403,7 +408,6 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .boat:hover{{filter:brightness(.88)}}
 .bstar{{font-weight:bold;color:#3949ab;margin-right:1px}}
 .brem{{font-weight:bold}}
-.tide{{font-size:.6em;color:#888;margin-left:auto}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
 .jido.full{{background:#ffcdd2;color:#b71c1c}}
 .jido.empty{{background:#f0f0f0;color:#aaa}}
