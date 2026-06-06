@@ -203,9 +203,10 @@ def _boat_row(label, cls_boat, status_cls, rem, tide, link, my_booking=False):
     """배 한 줄 HTML 생성"""
     tide_html = f'<span class="tide">{tide}</span>' if tide else ""
     mine_cls  = " mine" if my_booking else ""
+    star_html = '<span class="bstar">★</span>' if my_booking else ""
     return (
         f'<a class="boat {cls_boat} {status_cls}{mine_cls}" href="{link}" target="_blank">'
-        f'<span class="bname">{"★ " if my_booking else ""}{label}</span>'
+        f'{star_html}'
         f'<span class="brem">{rem}</span>'
         f'{tide_html}</a>'
     )
@@ -400,7 +401,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .boats{{width:100%;display:flex;flex-direction:column;gap:2px;margin-top:3px}}
 .boat{{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:.68em;text-decoration:none;cursor:pointer;transition:filter .15s}}
 .boat:hover{{filter:brightness(.88)}}
-.bname{{font-weight:bold;font-size:.85em;min-width:18px}}
+.bstar{{font-weight:bold;color:#3949ab;margin-right:1px}}
 .brem{{font-weight:bold}}
 .tide{{font-size:.6em;color:#888;margin-left:auto}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
