@@ -325,11 +325,11 @@ def generate_html(jido_data, raon_data, korean_holidays, last_run_at=None, last_
             hname = korean_holidays.get(d, "")
             wd    = "월화수목금토일"[d.weekday()]
             dtype = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
-            rem   = f"{info['remaining']}명" if info["remaining"] is not None else "빈자리"
+            rem   = f"{info['remaining']}명 남음" if info["remaining"] is not None else "빈자리"
             link  = f"{res_url}&year={d.year}&month={d.month:02d}&day={d.day:02d}&mode=list#list"
             items.append(
                 f'<li><a href="{link}" target="_blank">'
-                f'📅 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}</a></li>'
+                f'📅 {d.month}월 {d.day}일 ({wd}) [{dtype}] — {rem}</a></li>'
             )
         return "".join(items)
 
