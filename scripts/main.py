@@ -139,7 +139,7 @@ def _crawl_site(base_url, reservation_url, label=""):
     }
 
     today = date.today()
-    end_date = date(today.year, 10, 31)
+    end_date = date(today.year, 11, 15)
 
     chunks = []
     cur = date(today.year, today.month, 1)
@@ -334,7 +334,7 @@ def generate_html(jido_data, raon_data, korean_holidays, last_run_at=None, last_
         alert_html = f'<div class="alert"><h3>🎣 휴일·주말 빈자리 현황</h3><ul>{"".join(items)}</ul></div>'
 
     months_html = []
-    for offset in range(5):
+    for offset in range(6):
         m = today.month + offset
         y = today.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
