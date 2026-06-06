@@ -199,14 +199,15 @@ def crawl_raon():
 
 # ─── HTML 생성 ───────────────────────────────────────────────
 
-def _boat_row(label, cls_boat, status_cls, rem, tide, link):
+def _boat_row(label, cls_boat, status_cls, rem, tide, link, my_booking=False):
     """배 한 줄 HTML 생성"""
     tide_html = f'<span class="tide">{tide}</span>' if tide else ""
+    mine_html = '<span class="bmybadge">★</span>' if my_booking else ""
     return (
         f'<a class="boat {cls_boat} {status_cls}" href="{link}" target="_blank">'
         f'<span class="bname">{label}</span>'
         f'<span class="brem">{rem}</span>'
-        f'{tide_html}</a>'
+        f'{mine_html}{tide_html}</a>'
     )
 
 
@@ -264,7 +265,6 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
             if my_booking: cls += " mine"
 
             hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
-            mine_html      = '<span class="mybadge">★ 내예약</span>' if my_booking else ""
             companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
 
             jido_link = f"{JIDO_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
@@ -275,14 +275,14 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
             else:
                 boats_html = (
                     '<div class="boats">'
-                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_tide, jido_link)
-                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_tide, raon_link)
+                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_tide, jido_link, jido_mine)
+                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_tide, raon_link, raon_mine)
                     + '</div>'
                 )
 
             cells.append(
                 f'<td><div class="cell {cls}" data-date="{ds}">'
-                f'<span class="num">{day}</span>{hname_html}{mine_html}{companion_html}'
+                f'<span class="num">{day}</span>{hname_html}{companion_html}'
                 f'{boats_html}</div></td>'
             )
         rows.append(f'<tr>{"".join(cells)}</tr>')
@@ -377,6 +377,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .mine{{background:#e8eaf6!important;border:2px solid #3949ab!important}}
 .mine .num{{color:#1a237e!important}}
 .mybadge{{font-size:.6em;background:#3949ab;color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;font-weight:bold;line-height:1.4}}
+.bmybadge{{font-size:.85em;color:#3949ab;font-weight:bold;margin-left:2px}}
 .companion{{font-size:.6em;background:#f57c00;color:#fff;border-radius:3px;padding:1px 3px;margin-top:1px;line-height:1.4}}
 .sat .num{{color:#1565c0}}
 .sun .num{{color:#b71c1c!important}}
