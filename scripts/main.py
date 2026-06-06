@@ -312,26 +312,37 @@ def generate_html(jido_data, raon_data, korean_holidays, last_run_at=None, last_
                 result.append((d, info, label, res_url))
         return result
 
-    available = (
-        holiday_available(jido_data, "지도호", JIDO_URL)
-        + holiday_available(raon_data, "라온호", RAON_URL)
-    )
-    available.sort(key=lambda x: (x[0], x[2]))
+    jido_avail = holiday_available(jido_data, "지도호", JIDO_URL)
+    raon_avail = holiday_available(raon_data, "라온호", RAON_URL)
 
-    alert_html = ""
-    if available:
+    def make_alert_items(avail_list, res_url):
         items = []
-        for d, info, label, res_url in available:
+        for d, info, _, _ in avail_list:
             hname = korean_holidays.get(d, "")
-            wd = "월화수목금토일"[d.weekday()]
+            wd    = "월화수목금토일"[d.weekday()]
             dtype = "토요일" if d.weekday() == 5 else ("일요일" if d.weekday() == 6 else f"공휴일({hname})")
             rem   = f"{info['remaining']}명" if info["remaining"] is not None else "빈자리"
             link  = f"{res_url}&year={d.year}&month={d.month:02d}&day={d.day:02d}&mode=list#list"
             items.append(
                 f'<li><a href="{link}" target="_blank">'
-                f'📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] [{label}] — 남은자리 {rem}</a></li>'
+                f'📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}</a></li>'
             )
-        alert_html = f'<div class="alert"><h3>🎣 휴일·주말 빈자리 현황</h3><ul>{"".join(items)}</ul></div>'
+        return "".join(items)
+
+    alert_parts = []
+    if jido_avail:
+        alert_parts.append(
+            f'<div class="alert alert-jido">'
+            f'<h3>🟢 지도호 휴일·주말 빈자리</h3>'
+            f'<ul>{make_alert_items(jido_avail, JIDO_URL)}</ul></div>'
+        )
+    if raon_avail:
+        alert_parts.append(
+            f'<div class="alert alert-raon">'
+            f'<h3>🟠 라온호 휴일·주말 빈자리</h3>'
+            f'<ul>{make_alert_items(raon_avail, RAON_URL)}</ul></div>'
+        )
+    alert_html = "".join(alert_parts)
 
     months_html = []
     for offset in range(6):
@@ -353,8 +364,12 @@ body{{font-family:'Malgun Gothic',AppleGothic,sans-serif;background:#eef4eb;padd
 h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .subtitle{{text-align:center;font-size:.85em;color:#555;margin-bottom:12px}}
 .subtitle a{{color:#1a5e0e;text-decoration:none;margin:0 4px}}
-.alert{{background:#fffde7;border:2px solid #f9a825;border-radius:8px;padding:12px 16px;margin:0 auto 16px;max-width:1200px}}
-.alert h3{{color:#e65100;margin-bottom:8px;font-size:1em}}
+.alert{{border-radius:8px;padding:12px 16px;margin:0 auto 10px;max-width:1200px}}
+.alert-jido{{background:#f1f8e9;border:2px solid #558b2f}}
+.alert-raon{{background:#fff3e0;border:2px solid #e65100}}
+.alert h3{{margin-bottom:8px;font-size:1em}}
+.alert-jido h3{{color:#33691e}}
+.alert-raon h3{{color:#bf360c}}
 .alert ul{{list-style:none}}
 .alert li{{padding:3px 0;font-size:.9em}}
 .alert a{{color:#bf360c;font-weight:bold;text-decoration:none}}
