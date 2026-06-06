@@ -329,7 +329,7 @@ def generate_html(jido_data, raon_data, korean_holidays, last_run_at=None, last_
             link  = f"{res_url}&year={d.year}&month={d.month:02d}&day={d.day:02d}&mode=list#list"
             items.append(
                 f'<li><a href="{link}" target="_blank">'
-                f'📅 {d.year}년 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}</a></li>'
+                f'📅 {d.month}월 {d.day}일 ({wd}) [{dtype}] — 남은자리 {rem}</a></li>'
             )
         return "".join(items)
 
