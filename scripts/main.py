@@ -139,7 +139,7 @@ def _crawl_site(base_url, reservation_url, label=""):
     }
 
     today = date.today()
-    end_date = date(today.year, 11, 15)
+    end_date = date(today.year, 11, 30)
 
     chunks = []
     cur = date(today.year, today.month, 1)
