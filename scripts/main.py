@@ -202,12 +202,12 @@ def crawl_raon():
 def _boat_row(label, cls_boat, status_cls, rem, tide, link, my_booking=False):
     """배 한 줄 HTML 생성"""
     tide_html = f'<span class="tide">{tide}</span>' if tide else ""
-    mine_html = '<span class="bmybadge">★</span>' if my_booking else ""
+    mine_cls  = " mine" if my_booking else ""
     return (
-        f'<a class="boat {cls_boat} {status_cls}" href="{link}" target="_blank">'
-        f'<span class="bname">{label}</span>'
+        f'<a class="boat {cls_boat} {status_cls}{mine_cls}" href="{link}" target="_blank">'
+        f'<span class="bname">{"★ " if my_booking else ""}{label}</span>'
         f'<span class="brem">{rem}</span>'
-        f'{mine_html}{tide_html}</a>'
+        f'{tide_html}</a>'
     )
 
 
@@ -362,7 +362,7 @@ h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .months{{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1200px;margin:0 auto}}
 .month{{background:white;border-radius:10px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.1);flex:1;min-width:270px;max-width:360px}}
 .month-title{{text-align:center;font-weight:bold;color:#1a5e0e;font-size:1.05em;margin-bottom:10px}}
-table{{width:100%;border-collapse:collapse}}
+table{{width:100%;border-collapse:collapse;table-layout:fixed}}
 th{{padding:5px 2px;text-align:center;font-size:.78em;color:#666;font-weight:normal}}
 th.sat{{color:#1565c0}} th.sun{{color:#b71c1c}}
 td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
@@ -377,7 +377,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .mine{{background:#e8eaf6!important;border:2px solid #3949ab!important}}
 .mine .num{{color:#1a237e!important}}
 .mybadge{{font-size:.6em;background:#3949ab;color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;font-weight:bold;line-height:1.4}}
-.bmybadge{{font-size:.85em;color:#3949ab;font-weight:bold;margin-left:2px}}
+.boat.mine{{border:2px solid #3949ab!important;font-weight:bold}}
 .companion{{font-size:.6em;background:#f57c00;color:#fff;border-radius:3px;padding:1px 3px;margin-top:1px;line-height:1.4}}
 .sat .num{{color:#1565c0}}
 .sun .num{{color:#b71c1c!important}}
