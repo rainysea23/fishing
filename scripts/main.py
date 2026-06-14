@@ -556,26 +556,30 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
             )
         return "".join(items)
 
-    alert_parts = []
+    # 지도호·라온호 탭용 알림
+    jr_alert_parts = []
     if jido_avail:
-        alert_parts.append(
+        jr_alert_parts.append(
             f'<div class="alert alert-jido">'
             f'<h3>🟢 지도호 휴일·주말 빈자리</h3>'
             f'<ul>{make_alert_items(jido_avail, JIDO_URL)}</ul></div>'
         )
     if raon_avail:
-        alert_parts.append(
+        jr_alert_parts.append(
             f'<div class="alert alert-raon">'
             f'<h3>🟠 라온호 휴일·주말 빈자리</h3>'
             f'<ul>{make_alert_items(raon_avail, RAON_URL)}</ul></div>'
         )
+    jr_alert_html = "".join(jr_alert_parts)
+
+    # 카리스마호 탭용 알림
+    charisma_alert_html = ""
     if charisma_avail:
-        alert_parts.append(
+        charisma_alert_html = (
             f'<div class="alert alert-charisma">'
             f'<h3>🔵 카리스마호 휴일·주말 빈자리</h3>'
             f'<ul>{make_alert_items(charisma_avail, CHARISMA_URL)}</ul></div>'
         )
-    alert_html = "".join(alert_parts)
 
     months_html = []
     for offset in range(6):
@@ -690,7 +694,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
   <button class="tab-btn charisma-tab" onclick="switchTab('charisma')">🔵 카리스마호</button>
 </div>
 <div id="tab-jido-raon" class="tab-content active">
-{alert_html}
+{jr_alert_html}
 <div class="legend">
   <div class="legend-item"><span class="dot" style="background:#c8f0c0;border:1px solid #81c784"></span>지도호 예약가능</div>
   <div class="legend-item"><span class="dot" style="background:#ffe0b2;border:1px solid #ffb74d"></span>라온호 예약가능</div>
@@ -702,6 +706,7 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 <div class="months">{"".join(months_html)}</div>
 </div><!-- end tab-jido-raon -->
 <div id="tab-charisma" class="tab-content">
+{charisma_alert_html}
 <div class="legend">
   <div class="legend-item"><span class="dot" style="background:#bbdefb;border:1px solid #64b5f6"></span>카리스마호 예약가능</div>
   <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
