@@ -30,7 +30,7 @@ KST = timezone(timedelta(hours=9))
 # 내 예약 이름 (파란색 ★ 내예약 표시)
 MY_OWN_NAMES = ["류*익", "류*읻"]
 # 동행자 이름 (이름 그대로 표시)
-COMPANION_NAMES = ["박*교", "이*병"]
+COMPANION_NAMES = ["박*교", "이*병", "이성백"]
 MY_NAMES = MY_OWN_NAMES + COMPANION_NAMES
 
 
@@ -85,6 +85,13 @@ def is_holiday(d, korean_holidays):
     return d.weekday() >= 5 or d in korean_holidays
 
 
+def _get_full_text(elem):
+    """요소의 텍스트 + img alt 텍스트를 합쳐서 반환 (BeautifulSoup get_text는 img alt 제외)"""
+    text = elem.get_text()
+    img_alts = [img.get("alt", "") for img in elem.find_all("img")]
+    return text + " " + " ".join(img_alts)
+
+
 def _parse_divs(day_divs):
     """BeautifulSoup div 목록에서 날짜별 데이터 추출 (지도호·라온호 공통)"""
     results = {}
@@ -112,11 +119,11 @@ def _parse_divs(day_divs):
             parts = header_text.split(",")
             if len(parts) >= 3:
                 tide = parts[2].strip()
-        # 예약·입금대기 행에서만 이름 추출 (취소 포함 행 제외)
+        # 예약·입금대기 행에서만 이름 추출 (취소 포함 행 제외, img alt 텍스트 포함)
         active_rows = [
             row for row in div.find_all("tr")
-            if "취소" not in row.get_text()
-            and ("예약" in row.get_text() or "입금대기" in row.get_text())
+            if "취소" not in _get_full_text(row)
+            and ("예약" in _get_full_text(row) or "입금대기" in _get_full_text(row))
         ]
         active_text = " ".join(row.get_text() for row in active_rows) if active_rows else ""
         all_names = re.findall(r'[\w*]+님', active_text)
@@ -297,10 +304,10 @@ def crawl_charisma():
                                         except ValueError:
                                             status = "available"
 
-                    # 내 예약/동행자 확인
+                    # 내 예약/동행자 확인 (img alt 텍스트 포함)
                     active_rows = [
                         row for row in tbl.find_all("tr")
-                        if "취소" not in row.get_text()
+                        if "취소" not in _get_full_text(row)
                     ]
                     active_text = " ".join(row.get_text() for row in active_rows) if active_rows else ""
                     all_names = re.findall(r'[\w*]+님', active_text)
