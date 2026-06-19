@@ -30,8 +30,13 @@ KST = timezone(timedelta(hours=9))
 # 내 예약 이름 (파란색 ★ 내예약 표시)
 MY_OWN_NAMES = ["류*익", "류*읻"]
 # 동행자 이름 (이름 그대로 표시)
-COMPANION_NAMES = ["박*교", "이*병", "이성백"]
+COMPANION_NAMES = ["박*교", "박완교", "이*병", "이성백", "이*백"]
 MY_NAMES = MY_OWN_NAMES + COMPANION_NAMES
+
+# 카리스마호 수동 지정 (API 인증 필요로 자동감지 불가 — 날짜별 수동 설정)
+# "YYYYMMDD": {"my_booking": True} 또는 {"companions": ["이*백", "박*교"]}
+CHARISMA_MANUAL = {
+}
 
 
 def get_korean_holidays():
@@ -207,7 +212,7 @@ def crawl_raon():
 
 
 def crawl_charisma():
-    """카리스마호 예약 현황 크롤링 (SUNSANG24 플랫폼)"""
+    """카리스마호 예약 현황 크롤링 (SUNSANG24 플랫폼 + API 연동)"""
     session = requests.Session()
     session.verify = False
     headers = {
@@ -216,12 +221,16 @@ def crawl_charisma():
         "Accept-Language": "ko-KR,ko;q=0.9",
         "Referer": CHARISMA_BASE_URL,
     }
+    api_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Referer": CHARISMA_BASE_URL,
+    }
 
     today = date.today()
     end_date = date(today.year, 11, 30)
     end_ym = end_date.year * 100 + end_date.month
 
-    # 수집할 월 목록 (YYYYMM)
     months = []
     cur = date(today.year, today.month, 1)
     while cur <= end_date:
@@ -250,11 +259,11 @@ def crawl_charisma():
 
                 # 각 날짜별 테이블 파싱
                 day_tables = soup.find_all("table", id=re.compile(r"^d\d{4}-\d{2}-\d{2}$"))
+                api_count = 0
                 count = 0
                 for tbl in day_tables:
                     tbl_id = tbl.get("id", "")
-                    # d2026-06-14 → 20260614
-                    date_str = tbl_id[1:].replace("-", "")  # "20260614"
+                    date_str = tbl_id[1:].replace("-", "")
 
                     # 물때 추출
                     tide_td = tbl.find("td", class_="date_info2")
@@ -267,14 +276,11 @@ def crawl_charisma():
 
                     if remain_li:
                         remain_text = remain_li.get_text(strip=True)
-                        # "예약마감 18명 예약/18명" → full
-                        # "남은자리 5명 예약/13명" → available, remaining=5
                         shipping_status = remain_li.find("span", class_="shipping_status")
                         if shipping_status and "END" in shipping_status.get("data-status_code", ""):
                             remaining = 0
                             status = "full"
                         else:
-                            # 남은자리인 경우
                             blink_span = remain_li.find("span", class_="blink_me")
                             if blink_span:
                                 try:
@@ -283,15 +289,12 @@ def crawl_charisma():
                                 except ValueError:
                                     pass
                             if status == "no_data":
-                                # fallback: text 기반
                                 if "예약마감" in remain_text:
                                     remaining = 0
                                     status = "full"
                                 elif "남은자리" in remain_text:
-                                    # 숫자 추출 시도
                                     nums = re.findall(r'(\d+)명', remain_text)
                                     if len(nums) >= 2:
-                                        # nums[0] = 남은자리, nums[1] = 예약/총원
                                         try:
                                             remaining = int(nums[0])
                                             status = "available" if remaining > 0 else "full"
@@ -304,15 +307,31 @@ def crawl_charisma():
                                         except ValueError:
                                             status = "available"
 
-                    # 내 예약/동행자 확인 (img alt 텍스트 포함)
-                    active_rows = [
-                        row for row in tbl.find_all("tr")
-                        if "취소" not in _get_full_text(row)
-                    ]
-                    active_text = " ".join(row.get_text() for row in active_rows) if active_rows else ""
-                    all_names = re.findall(r'[\w*]+님', active_text)
-                    my_booking = any(any(name in r for r in all_names) for name in MY_OWN_NAMES)
-                    companions = [n for n in COMPANION_NAMES if any(n in r for r in all_names)]
+                    # API로 예약자 이름 조회
+                    my_booking = False
+                    companions = []
+                    reservation_detail = tbl.find("ul", class_="reservation_detail")
+                    if reservation_detail:
+                        schedule_no = reservation_detail.get("data-schedule_no")
+                        if schedule_no:
+                            try:
+                                api_url = f"https://service.sunsang24.com/v1/ship/schedule/{schedule_no}/reservation"
+                                api_resp = session.get(api_url, headers=api_headers, timeout=(5, 10))
+                                if api_resp.status_code == 200:
+                                    api_data = api_resp.json()
+                                    res_users = api_data.get("reservation_users", {})
+                                    # 예약완료 + 입금대기 + 예약대기 (취소/취소대기 제외)
+                                    all_names = []
+                                    for category in ["end", "ready", "awaiter"]:
+                                        for user in res_users.get(category, []):
+                                            n = user.get("name", "")
+                                            if n:
+                                                all_names.append(n)
+                                    my_booking = any(any(name in r for r in all_names) for name in MY_OWN_NAMES)
+                                    companions = [n for n in COMPANION_NAMES if any(n in r for r in all_names)]
+                                    api_count += 1
+                            except Exception:
+                                pass  # API 호출 실패 시 HTML 기반으로만 판단
 
                     if date_str not in all_data:
                         all_data[date_str] = {
@@ -325,7 +344,7 @@ def crawl_charisma():
                         }
                         count += 1
 
-                print(f"  [카리스마호] {ym}: {count}일")
+                print(f"  [카리스마호] {ym}: {count}일 (API {api_count}건)")
                 success = True
                 break
             except Exception as e:
@@ -890,6 +909,21 @@ def main():
     raon_data = crawl_raon()
     print("=== 카리스마호 크롤링 ===")
     charisma_data = crawl_charisma()
+
+    # 카리스마호 수동 지정 병합 (API 인증 불가 대응)
+    for ds, manual in CHARISMA_MANUAL.items():
+        if ds in charisma_data:
+            if "my_booking" in manual:
+                charisma_data[ds]["my_booking"] = manual["my_booking"]
+            if "companions" in manual:
+                charisma_data[ds]["companions"] = manual["companions"]
+        else:
+            charisma_data[ds] = {
+                "date": ds, "remaining": None, "status": "no_data",
+                "tide": "", "my_booking": manual.get("my_booking", False),
+                "companions": manual.get("companions", []),
+                "_manual": True,
+            }
 
     kr_holidays = get_korean_holidays()
     now_kst = datetime.now(KST)
