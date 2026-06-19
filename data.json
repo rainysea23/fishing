@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-06-20T06:00:50.578254+09:00",
-  "last_changed_at": "2026-06-20T05:00:56.502240+09:00",
-  "updated_at": "2026-06-20T06:00:50.578254+09:00",
+  "last_run_at": "2026-06-19T20:04:59.252288+09:00",
+  "last_changed_at": "2026-06-19T20:00:36.768078+09:00",
+  "updated_at": "2026-06-19T20:04:59.252288+09:00",
   "reservations": {
     "20260601": {
       "date": "20260601",
@@ -1638,8 +1638,8 @@
     },
     "20260619": {
       "date": "20260619",
-      "remaining": null,
-      "status": "no_data",
+      "remaining": 6,
+      "status": "available",
       "tide": "11물",
       "my_booking": false,
       "companions": []
@@ -1758,8 +1758,8 @@
     },
     "20260704": {
       "date": "20260704",
-      "remaining": 2,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "11물",
       "my_booking": false,
       "companions": []
@@ -2329,7 +2329,7 @@
       "remaining": 0,
       "status": "full",
       "tide": "9물",
-      "my_booking": false,
+      "my_booking": true,
       "companions": []
     },
     "20260914": {
@@ -2974,6 +2974,14 @@
     }
   },
   "charisma_reservations": {
+    "20260619": {
+      "date": "20260619",
+      "remaining": 0,
+      "status": "full",
+      "tide": "11물",
+      "my_booking": false,
+      "companions": []
+    },
     "20260620": {
       "date": "20260620",
       "remaining": null,
@@ -3588,7 +3596,9 @@
       "status": "full",
       "tide": "조금",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20260905": {
       "date": "20260905",
@@ -3660,7 +3670,9 @@
       "status": "full",
       "tide": "9물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20260914": {
       "date": "20260914",
@@ -3716,7 +3728,9 @@
       "status": "full",
       "tide": "1물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20260921": {
       "date": "20260921",
@@ -3748,7 +3762,9 @@
       "status": "full",
       "tide": "5물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20260925": {
       "date": "20260925",
@@ -3780,7 +3796,9 @@
       "status": "available",
       "tide": "9물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "이성백"
+      ]
     },
     "20260929": {
       "date": "20260929",
@@ -3828,7 +3846,9 @@
       "status": "full",
       "tide": "무시",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261005": {
       "date": "20261005",
@@ -3868,7 +3888,9 @@
       "status": "full",
       "tide": "5물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261010": {
       "date": "20261010",
@@ -3996,7 +4018,9 @@
       "status": "full",
       "tide": "6물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261026": {
       "date": "20261026",
@@ -4100,7 +4124,9 @@
       "status": "full",
       "tide": "4물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261108": {
       "date": "20261108",
@@ -4156,7 +4182,9 @@
       "status": "full",
       "tide": "12물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261115": {
       "date": "20261115",
@@ -4212,7 +4240,9 @@
       "status": "full",
       "tide": "4물",
       "my_booking": false,
-      "companions": []
+      "companions": [
+        "박완교"
+      ]
     },
     "20261122": {
       "date": "20261122",
