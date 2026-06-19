@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 .claude/
 *.tmp
+claude_deep.bat
+.claude_deep.cmd
