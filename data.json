@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-06-20T21:01:49.480638+09:00",
-  "last_changed_at": "2026-06-20T21:01:49.480638+09:00",
-  "updated_at": "2026-06-20T21:01:49.480638+09:00",
+  "last_run_at": "2026-06-20T22:02:45.827329+09:00",
+  "last_changed_at": "2026-06-20T22:02:45.827329+09:00",
+  "updated_at": "2026-06-20T22:02:45.827329+09:00",
   "reservations": {
     "20260601": {
       "date": "20260601",
@@ -173,7 +173,7 @@
     },
     "20260622": {
       "date": "20260622",
-      "remaining": 10,
+      "remaining": 9,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
@@ -3024,7 +3024,7 @@
     },
     "20260626": {
       "date": "20260626",
-      "remaining": 7,
+      "remaining": 6,
       "status": "available",
       "tide": "3물",
       "my_booking": false,
