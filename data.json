@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-06-21T23:01:38.478553+09:00",
-  "last_changed_at": "2026-06-21T22:01:27.927058+09:00",
-  "updated_at": "2026-06-21T23:01:38.478553+09:00",
+  "last_run_at": "2026-06-22T00:03:16.777022+09:00",
+  "last_changed_at": "2026-06-22T00:03:16.777022+09:00",
+  "updated_at": "2026-06-22T00:03:16.777022+09:00",
   "reservations": {
     "20260601": {
       "date": "20260601",
@@ -165,8 +165,8 @@
     },
     "20260621": {
       "date": "20260621",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "대객기",
       "my_booking": false,
       "companions": []
@@ -1654,8 +1654,8 @@
     },
     "20260621": {
       "date": "20260621",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "13물",
       "my_booking": false,
       "companions": []
@@ -2974,14 +2974,6 @@
     }
   },
   "charisma_reservations": {
-    "20260621": {
-      "date": "20260621",
-      "remaining": 0,
-      "status": "full",
-      "tide": "13물",
-      "my_booking": false,
-      "companions": []
-    },
     "20260622": {
       "date": "20260622",
       "remaining": 1,
