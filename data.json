@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-06-29T16:01:41.776592+09:00",
-  "last_changed_at": "2026-06-29T16:01:41.776592+09:00",
-  "updated_at": "2026-06-29T16:01:41.776592+09:00",
+  "last_run_at": "2026-06-29T17:01:30.528393+09:00",
+  "last_changed_at": "2026-06-29T17:01:30.528393+09:00",
+  "updated_at": "2026-06-29T17:01:30.528393+09:00",
   "reservations": {
     "20260601": {
       "date": "20260601",
@@ -269,13 +269,11 @@
     },
     "20260704": {
       "date": "20260704",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "11물",
       "my_booking": true,
-      "companions": [
-        "박*교"
-      ]
+      "companions": []
     },
     "20260705": {
       "date": "20260705",
@@ -439,12 +437,11 @@
     },
     "20260725": {
       "date": "20260725",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "3물",
       "my_booking": true,
       "companions": [
-        "박*교",
         "이*병"
       ]
     },
@@ -3016,8 +3013,8 @@
     },
     "20260704": {
       "date": "20260704",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "11물",
       "my_booking": false,
       "companions": [
@@ -3042,7 +3039,7 @@
     },
     "20260707": {
       "date": "20260707",
-      "remaining": 14,
+      "remaining": 12,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
