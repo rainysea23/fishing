@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-06-29T23:02:21.201352+09:00",
-  "last_changed_at": "2026-06-29T23:02:21.201352+09:00",
-  "updated_at": "2026-06-29T23:02:21.201352+09:00",
+  "last_run_at": "2026-06-30T00:01:03.292273+09:00",
+  "last_changed_at": "2026-06-30T00:01:03.292273+09:00",
+  "updated_at": "2026-06-30T00:01:03.292273+09:00",
   "reservations": {
     "20260601": {
       "date": "20260601",
@@ -229,8 +229,8 @@
     },
     "20260629": {
       "date": "20260629",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "6물",
       "my_booking": false,
       "companions": []
@@ -1715,8 +1715,8 @@
     },
     "20260629": {
       "date": "20260629",
-      "remaining": 15,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "6물",
       "my_booking": false,
       "companions": []
@@ -2971,14 +2971,6 @@
     }
   },
   "charisma_reservations": {
-    "20260629": {
-      "date": "20260629",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "6물",
-      "my_booking": false,
-      "companions": []
-    },
     "20260630": {
       "date": "20260630",
       "remaining": 2,
@@ -2997,7 +2989,7 @@
     },
     "20260702": {
       "date": "20260702",
-      "remaining": 5,
+      "remaining": 4,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
