@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-07-04T23:05:28.280726+09:00",
-  "last_changed_at": "2026-07-04T22:01:27.387803+09:00",
-  "updated_at": "2026-07-04T23:05:28.280726+09:00",
+  "last_run_at": "2026-07-05T00:01:01.071861+09:00",
+  "last_changed_at": "2026-07-05T00:01:01.071861+09:00",
+  "updated_at": "2026-07-05T00:01:01.071861+09:00",
   "reservations": {
     "20260701": {
       "date": "20260701",
@@ -29,10 +29,10 @@
     },
     "20260704": {
       "date": "20260704",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "11물",
-      "my_booking": true,
+      "my_booking": false,
       "companions": []
     },
     "20260705": {
@@ -1275,8 +1275,8 @@
     },
     "20260704": {
       "date": "20260704",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "11물",
       "my_booking": false,
       "companions": []
@@ -2491,16 +2491,6 @@
     }
   },
   "charisma_reservations": {
-    "20260704": {
-      "date": "20260704",
-      "remaining": 0,
-      "status": "full",
-      "tide": "11물",
-      "my_booking": false,
-      "companions": [
-        "강상규"
-      ]
-    },
     "20260705": {
       "date": "20260705",
       "remaining": 0,
