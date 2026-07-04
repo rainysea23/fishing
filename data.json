@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-07-04T14:38:04.118562+09:00",
-  "last_changed_at": "2026-07-04T14:38:04.118562+09:00",
-  "updated_at": "2026-07-04T14:38:04.118562+09:00",
+  "last_run_at": "2026-07-04T15:01:03.987209+09:00",
+  "last_changed_at": "2026-07-04T15:01:03.987209+09:00",
+  "updated_at": "2026-07-04T15:01:03.987209+09:00",
   "reservations": {
     "20260701": {
       "date": "20260701",
@@ -1283,8 +1283,8 @@
     },
     "20260705": {
       "date": "20260705",
-      "remaining": 15,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "12물",
       "my_booking": false,
       "companions": []
