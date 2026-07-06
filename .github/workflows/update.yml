@@ -1,7 +1,9 @@
 name: Update Fishing Calendar
 
 on:
-  workflow_dispatch:        # 수동 실행만 허용 (자동 실행은 Oracle VM 크론으로 대체)
+  schedule:
+    - cron: '7 * * * *'     # 매시간 7분에 자동 실행
+  workflow_dispatch:        # 수동 실행도 가능
 
 permissions:
   contents: write
