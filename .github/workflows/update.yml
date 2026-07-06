@@ -2,7 +2,7 @@ name: Update Fishing Calendar
 
 on:
   schedule:
-    - cron: '27 * * * *'    # 매시간 27분에 자동 실행 (Oracle VM 0~10분 랜덤딜레이 후)
+    - cron: '15 * * * *'    # 매시간 15분에 자동 실행 (Oracle VM 0~10분 랜덤딜레이 후)
   workflow_dispatch:        # 수동 실행도 가능
 
 permissions:
