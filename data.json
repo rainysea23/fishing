@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-07-07T23:02:07.883945+09:00",
-  "last_changed_at": "2026-07-07T22:02:09.984207+09:00",
-  "updated_at": "2026-07-07T23:02:07.883945+09:00",
+  "last_run_at": "2026-07-08T00:01:19.290730+09:00",
+  "last_changed_at": "2026-07-08T00:01:19.290730+09:00",
+  "updated_at": "2026-07-08T00:01:19.290730+09:00",
   "reservations": {
     "20260701": {
       "date": "20260701",
@@ -2491,14 +2491,6 @@
     }
   },
   "charisma_reservations": {
-    "20260707": {
-      "date": "20260707",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "조금",
-      "my_booking": false,
-      "companions": []
-    },
     "20260708": {
       "date": "20260708",
       "remaining": null,
