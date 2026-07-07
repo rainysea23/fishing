@@ -2,26 +2,16 @@ name: Update Fishing Calendar
 
 on:
   schedule:
-    - cron: '15 * * * *'    # 매시간 15분에 자동 실행 (Oracle VM 0~10분 랜덤딜레이 후)
+    - cron: '15 * * * *'    # 매시간 15분에 자동 실행 (UTC)
   workflow_dispatch:        # 수동 실행도 가능
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-# 동시 실행 방지 — 이전 배포가 완료될 때까지 대기
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     env:
       TZ: Asia/Seoul
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -58,15 +48,3 @@ jobs:
             git pull --rebase origin main
             git push
           fi
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
