@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-07-12T13:01:10.121713+09:00",
-  "last_changed_at": "2026-07-12T13:01:10.121713+09:00",
-  "updated_at": "2026-07-12T13:01:10.121713+09:00",
+  "last_run_at": "2026-07-12T15:47:33.408914+09:00",
+  "last_changed_at": "2026-07-12T15:47:33.408914+09:00",
+  "updated_at": "2026-07-12T15:47:33.408914+09:00",
   "reservations": {},
   "raon_reservations": {},
   "charisma_reservations": {
@@ -23,8 +23,8 @@
     },
     "20260714": {
       "date": "20260714",
-      "remaining": 5,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "7물",
       "my_booking": false,
       "companions": []
@@ -39,7 +39,7 @@
     },
     "20260716": {
       "date": "20260716",
-      "remaining": 13,
+      "remaining": 12,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -47,8 +47,8 @@
     },
     "20260717": {
       "date": "20260717",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "10물",
       "my_booking": false,
       "companions": []
@@ -87,7 +87,7 @@
     },
     "20260722": {
       "date": "20260722",
-      "remaining": 16,
+      "remaining": 15,
       "status": "available",
       "tide": "무시",
       "my_booking": false,
@@ -265,7 +265,7 @@
     },
     "20260813": {
       "date": "20260813",
-      "remaining": 16,
+      "remaining": 15,
       "status": "available",
       "tide": "7물",
       "my_booking": false,
