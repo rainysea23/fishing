@@ -1,18 +1,10 @@
 {
-  "last_run_at": "2026-07-13T20:30:39.625050+09:00",
-  "last_changed_at": "2026-07-13T20:30:39.625050+09:00",
-  "updated_at": "2026-07-13T20:30:39.625050+09:00",
+  "last_run_at": "2026-07-14T00:13:18.240993+09:00",
+  "last_changed_at": "2026-07-14T00:13:18.240993+09:00",
+  "updated_at": "2026-07-14T00:13:18.240993+09:00",
   "reservations": {},
   "raon_reservations": {},
   "charisma_reservations": {
-    "20260713": {
-      "date": "20260713",
-      "remaining": 1,
-      "status": "available",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": []
-    },
     "20260714": {
       "date": "20260714",
       "remaining": null,
@@ -225,7 +217,7 @@
     },
     "20260809": {
       "date": "20260809",
-      "remaining": 8,
+      "remaining": 9,
       "status": "available",
       "tide": "3물",
       "my_booking": false,
