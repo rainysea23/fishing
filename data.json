@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-07-23T09:13:56.367445+09:00",
-  "last_changed_at": "2026-07-23T09:13:56.367445+09:00",
-  "updated_at": "2026-07-23T09:13:56.367445+09:00",
+  "last_run_at": "2026-07-23T10:05:14.666195+09:00",
+  "last_changed_at": "2026-07-23T10:05:14.666195+09:00",
+  "updated_at": "2026-07-23T10:05:14.666195+09:00",
   "reservations": {
     "20260701": {
       "date": "20260701",
@@ -197,8 +197,8 @@
     },
     "20260725": {
       "date": "20260725",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "3물",
       "my_booking": true,
       "companions": [
@@ -351,7 +351,7 @@
     },
     "20260813": {
       "date": "20260813",
-      "remaining": 17,
+      "remaining": 15,
       "status": "available",
       "tide": "7물",
       "my_booking": false,
@@ -391,7 +391,7 @@
     },
     "20260818": {
       "date": "20260818",
-      "remaining": 17,
+      "remaining": 14,
       "status": "available",
       "tide": "한객기",
       "my_booking": false,
@@ -407,7 +407,7 @@
     },
     "20260820": {
       "date": "20260820",
-      "remaining": 17,
+      "remaining": 14,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
@@ -447,7 +447,7 @@
     },
     "20260825": {
       "date": "20260825",
-      "remaining": 17,
+      "remaining": 14,
       "status": "available",
       "tide": "4물",
       "my_booking": false,
@@ -2501,8 +2501,8 @@
     },
     "20260724": {
       "date": "20260724",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "2물",
       "my_booking": false,
       "companions": []
@@ -2541,7 +2541,7 @@
     },
     "20260729": {
       "date": "20260729",
-      "remaining": 10,
+      "remaining": 9,
       "status": "available",
       "tide": "7물",
       "my_booking": false,
@@ -2581,7 +2581,7 @@
     },
     "20260803": {
       "date": "20260803",
-      "remaining": 13,
+      "remaining": 12,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
