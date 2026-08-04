@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-05T03:03:43.167361+09:00",
-  "last_changed_at": "2026-08-05T01:04:29.771009+09:00",
-  "updated_at": "2026-08-05T03:03:43.167361+09:00",
+  "last_run_at": "2026-08-05T04:44:38.696630+09:00",
+  "last_changed_at": "2026-08-05T04:44:38.696630+09:00",
+  "updated_at": "2026-08-05T04:44:38.696630+09:00",
   "reservations": {
     "20260801": {
       "date": "20260801",
@@ -1995,7 +1995,7 @@
   "charisma_reservations": {
     "20260805": {
       "date": "20260805",
-      "remaining": 8,
+      "remaining": 11,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
