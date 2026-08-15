@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""지도호·라온호 낚시 예약 현황 크롤러 & 캘린더 생성기 & 텔레그램 알림"""
+"""지도호·가가호·카리스마호 낚시 예약 현황 크롤러 & 캘린더 생성기 & 텔레그램 알림"""
 
 import requests
 import urllib3
@@ -13,10 +13,15 @@ from datetime import datetime, date, timedelta, timezone
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Windows 콘솔 cp949에서 한자·특수문자(— 등) 출력 시 깨짐/크래시 방지
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 JIDO_BASE_URL = "http://www.newjidoho.com"
 JIDO_URL      = f"{JIDO_BASE_URL}/index.php?mid=bk"
-RAON_BASE_URL = "http://www.raonfishing.com"
-RAON_URL      = f"{RAON_BASE_URL}/index.php?mid=bk"
+GAGAHO_BASE_URL = "https://gagaho.sunsang24.com"
+GAGAHO_URL     = f"{GAGAHO_BASE_URL}/ship/schedule_fleet"
 CHARISMA_BASE_URL = "https://charisma.sunsang24.com"
 CHARISMA_URL     = f"{CHARISMA_BASE_URL}/ship/schedule_fleet"
 # 하위 호환
@@ -103,7 +108,7 @@ def _get_full_text(elem):
 
 
 def _parse_divs(day_divs):
-    """BeautifulSoup div 목록에서 날짜별 데이터 추출 (지도호·라온호 공통)"""
+    """BeautifulSoup div 목록에서 날짜별 데이터 추출 (지도호 전용)"""
     results = {}
     for div in day_divs:
         date_str = div["id"].replace("new-div-", "")
@@ -211,25 +216,25 @@ def crawl_reservations():
     return _crawl_site(JIDO_BASE_URL, JIDO_URL, "지도호")
 
 
-def crawl_raon():
-    """라온호 예약 현황 크롤링"""
-    return _crawl_site(RAON_BASE_URL, RAON_URL, "라온호")
+def crawl_gagaho():
+    """가가호 예약 현황 크롤링 (SUNSANG24 플랫폼 + API 연동, 가가호 선박만 필터링)"""
+    return _crawl_sunsang24(GAGAHO_BASE_URL, GAGAHO_URL, "가가호", ship_filter="가가호")
 
 
-def crawl_charisma():
-    """카리스마호 예약 현황 크롤링 (SUNSANG24 플랫폼 + API 연동)"""
+def _crawl_sunsang24(base_url, reservation_url, label, ship_filter=None):
+    """SUNSANG24 플랫폼 크롤러 (카리스마호·가가호 공통) — ship_filter 지정 시 해당 선박만 파싱"""
     session = requests.Session()
     session.verify = False
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml",
         "Accept-Language": "ko-KR,ko;q=0.9",
-        "Referer": CHARISMA_BASE_URL,
+        "Referer": base_url,
     }
     api_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json",
-        "Referer": CHARISMA_BASE_URL,
+        "Referer": base_url,
     }
 
     today = date.today()
@@ -245,16 +250,16 @@ def crawl_charisma():
         m = ((m - 1) % 12) + 1
         cur = date(y, m, 1)
 
-    print(f"  [카리스마호] 총 {len(months)}개월 크롤링...")
+    print(f"  [{label}] 총 {len(months)}개월 크롤링...")
     all_data = {}
     consecutive_failures = 0
 
     for ym in months:
         if consecutive_failures >= 3:
-            print(f"  [카리스마호] 연속 3회 실패 — 사이트 다운으로 판단, 나머지 스킵", file=sys.stderr)
+            print(f"  [{label}] 연속 3회 실패 — 사이트 다운으로 판단, 나머지 스킵", file=sys.stderr)
             break
 
-        url = f"{CHARISMA_URL}/{ym}"
+        url = f"{reservation_url}/{ym}"
         success = False
         for attempt in range(2):
             try:
@@ -270,12 +275,25 @@ def crawl_charisma():
                     tbl_id = tbl.get("id", "")
                     date_str = tbl_id[1:].replace("-", "")
 
-                    # 물때 추출
+                    # ship_filter 지정 시 해당 선박 유닛만 선택 (같은 날짜에 여러 배 표시)
+                    target = tbl
+                    if ship_filter:
+                        target = None
+                        for unit in tbl.find_all("table", class_=re.compile(r"ship_unit")):
+                            info_td = unit.find("td", class_="ship_info")
+                            title_div = info_td.find("div", class_="title") if info_td else None
+                            if title_div and ship_filter in title_div.get_text():
+                                target = unit
+                                break
+                        if target is None:
+                            continue  # 해당 선박 운항 없는 날
+
+                    # 물때 추출 (날짜 테이블 수준)
                     tide_td = tbl.find("td", class_="date_info2")
                     tide = tide_td.get_text(strip=True) if tide_td else ""
 
-                    # 남은자리/예약마감 추출
-                    remain_li = tbl.find("li", class_="remain")
+                    # 남은자리/예약마감 추출 (선박 유닛 내부)
+                    remain_li = target.find("li", class_="remain")
                     remaining = None
                     status = "no_data"
 
@@ -285,6 +303,8 @@ def crawl_charisma():
                         if shipping_status and "END" in shipping_status.get("data-status_code", ""):
                             remaining = 0
                             status = "full"
+                        elif shipping_status and shipping_status.get("data-status_code", "") == "CHECK":
+                            pass  # 점검일 — 운항 없음, no_data 유지
                         else:
                             blink_span = remain_li.find("span", class_="blink_me")
                             if blink_span:
@@ -315,7 +335,7 @@ def crawl_charisma():
                     # API로 예약자 이름 조회
                     my_booking = False
                     companions = []
-                    reservation_detail = tbl.find("ul", class_="reservation_detail")
+                    reservation_detail = target.find("ul", class_="reservation_detail")
                     if reservation_detail:
                         schedule_no = reservation_detail.get("data-schedule_no")
                         if schedule_no:
@@ -349,20 +369,25 @@ def crawl_charisma():
                         }
                         count += 1
 
-                print(f"  [카리스마호] {ym}: {count}일 (API {api_count}건)")
+                print(f"  [{label}] {ym}: {count}일 (API {api_count}건)")
                 success = True
                 break
             except Exception as e:
-                print(f"  [카리스마호] 오류 {ym} (시도{attempt+1}): {e}", file=sys.stderr)
+                print(f"  [{label}] 오류 {ym} (시도{attempt+1}): {e}", file=sys.stderr)
 
         if success:
             consecutive_failures = 0
         else:
             consecutive_failures += 1
-            print(f"  [카리스마호] {ym}: 스킵")
+            print(f"  [{label}] {ym}: 스킵")
 
-    print(f"  [카리스마호] 수집 완료: {len(all_data)}일")
+    print(f"  [{label}] 수집 완료: {len(all_data)}일")
     return all_data
+
+
+def crawl_charisma():
+    """카리스마호 예약 현황 크롤링 (SUNSANG24 플랫폼 + API 연동)"""
+    return _crawl_sunsang24(CHARISMA_BASE_URL, CHARISMA_URL, "카리스마호")
 
 
 # ─── HTML 생성 ───────────────────────────────────────────────
@@ -459,7 +484,7 @@ def gen_charisma_month(year, month, today, charisma_data, korean_holidays):
     )
 
 
-def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
+def gen_month(year, month, today, jido_data, gagaho_data, korean_holidays):
     mn = "1월 2월 3월 4월 5월 6월 7월 8월 9월 10월 11월 12월".split()[month - 1]
     rows = []
     for week in calendar.monthcalendar(year, month):
@@ -506,20 +531,20 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
                 return rem, status_cls, tide, my_booking, companions
 
             jido_rem, jido_cls, jido_tide, jido_mine, jido_comp = boat_info(jido_data)
-            raon_rem, raon_cls, raon_tide, raon_mine, raon_comp = boat_info(raon_data)
+            gagaho_rem, gagaho_cls, gagaho_tide, gagaho_mine, gagaho_comp = boat_info(gagaho_data)
 
-            my_booking = jido_mine or raon_mine
-            companions = list(dict.fromkeys(jido_comp + raon_comp))  # 중복 제거, 순서 유지
+            my_booking = jido_mine or gagaho_mine
+            companions = list(dict.fromkeys(jido_comp + gagaho_comp))  # 중복 제거, 순서 유지
             if my_booking: cls += " mine"
 
-            # 물때: 지도호 우선, 없으면 라온호
-            tide = jido_tide or raon_tide
+            # 물때: 지도호 우선, 없으면 가가호
+            tide = jido_tide or gagaho_tide
             tide_html      = f'<span class="tide">{tide}</span>' if tide else ""
             hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
             companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
 
             jido_link = f"{JIDO_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
-            raon_link = f"{RAON_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
+            gagaho_link = f"{GAGAHO_URL}/{year}{month:02d}"
 
             if d < today:
                 boats_html = ""
@@ -527,7 +552,7 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
                 boats_html = (
                     '<div class="boats">'
                     + _boat_row("지도", "jido", jido_cls, jido_rem, jido_link, jido_mine)
-                    + _boat_row("라온", "raon", raon_cls, raon_rem, raon_link, raon_mine)
+                    + _boat_row("가가", "gagaho", gagaho_cls, gagaho_rem, gagaho_link, gagaho_mine)
                     + '</div>'
                 )
 
@@ -548,7 +573,7 @@ def gen_month(year, month, today, jido_data, raon_data, korean_holidays):
     )
 
 
-def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run_at=None, last_changed_at=None):
+def generate_html(jido_data, gagaho_data, charisma_data, korean_holidays, last_run_at=None, last_changed_at=None):
     today = date.today()
     now_kst = datetime.now(KST)
     if last_run_at is None:
@@ -565,7 +590,7 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
         return result
 
     jido_avail = holiday_available(jido_data, "지도호", JIDO_URL)
-    raon_avail = holiday_available(raon_data, "라온호", RAON_URL)
+    gagaho_avail = holiday_available(gagaho_data, "가가호", GAGAHO_URL)
     charisma_avail = holiday_available(charisma_data, "카리스마호", CHARISMA_URL)
 
     def make_alert_items(avail_list, res_url):
@@ -575,7 +600,7 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
             wd    = "월화수목금토일"[d.weekday()]
             dtype = f"공휴일({hname})" if d.weekday() < 5 and hname else ""
             rem   = f"{info['remaining']}명 남음" if info["remaining"] is not None else "빈자리"
-            # URL 패턴 분기: 카리스마호는 월별 페이지, 지도호/라온호는 일별 쿼리 파라미터
+            # URL 패턴 분기: 선상24 플랫폼(카리스마호·가가호)은 월별 페이지, 지도호는 일별 쿼리 파라미터
             if "sunsang24.com" in res_url:
                 link = f"{res_url}/{d.year}{d.month:02d}"
             else:
@@ -587,7 +612,7 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
             )
         return "".join(items)
 
-    # 지도호·라온호 탭용 알림
+    # 지도호·가가호 탭용 알림
     jr_alert_parts = []
     if jido_avail:
         jr_alert_parts.append(
@@ -595,11 +620,11 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
             f'<h3>🟢 지도호 휴일·주말 빈자리</h3>'
             f'<ul>{make_alert_items(jido_avail, JIDO_URL)}</ul></div>'
         )
-    if raon_avail:
+    if gagaho_avail:
         jr_alert_parts.append(
-            f'<div class="alert alert-raon">'
-            f'<h3>🟠 라온호 휴일·주말 빈자리</h3>'
-            f'<ul>{make_alert_items(raon_avail, RAON_URL)}</ul></div>'
+            f'<div class="alert alert-gagaho">'
+            f'<h3>🟠 가가호 휴일·주말 빈자리</h3>'
+            f'<ul>{make_alert_items(gagaho_avail, GAGAHO_URL)}</ul></div>'
         )
     jr_alert_html = "".join(jr_alert_parts)
 
@@ -617,7 +642,7 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
         m = today.month + offset
         y = today.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
-        months_html.append(gen_month(y, m, today, jido_data, raon_data, korean_holidays))
+        months_html.append(gen_month(y, m, today, jido_data, gagaho_data, korean_holidays))
 
     charisma_months_html = []
     for offset in range(6):
@@ -632,7 +657,7 @@ def generate_html(jido_data, raon_data, charisma_data, korean_holidays, last_run
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="refresh" content="1800">
-<title>🎣 낚시 예약 현황 — 지도호·라온호·카리스마호</title>
+<title>🎣 낚시 예약 현황 — 지도호·가가호·카리스마호</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:'Malgun Gothic',AppleGothic,sans-serif;background:#eef4eb;padding:12px;color:#333}}
@@ -647,11 +672,11 @@ h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .tab-content.active{{display:block}}
 .alert{{border-radius:8px;padding:12px 16px;margin:0 auto 10px;max-width:1200px}}
 .alert-jido{{background:#f1f8e9;border:2px solid #558b2f}}
-.alert-raon{{background:#fff3e0;border:2px solid #e65100}}
+.alert-gagaho{{background:#fff3e0;border:2px solid #e65100}}
 .alert-charisma{{background:#e3f2fd;border:2px solid #1565c0}}
 .alert h3{{margin-bottom:8px;font-size:1em}}
 .alert-jido h3{{color:#33691e}}
-.alert-raon h3{{color:#bf360c}}
+.alert-gagaho h3{{color:#bf360c}}
 .alert-charisma h3{{color:#0d47a1}}
 .alert ul{{list-style:none}}
 .alert li{{padding:3px 0;font-size:.9em}}
@@ -690,9 +715,9 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
 .jido.full{{background:#ffcdd2;color:#b71c1c}}
 .jido.empty{{background:#f0f0f0;color:#aaa}}
-.raon.avail{{background:#ffe0b2;color:#e65100}}
-.raon.full{{background:#ffcdd2;color:#b71c1c}}
-.raon.empty{{background:#f0f0f0;color:#aaa}}
+.gagaho.avail{{background:#ffe0b2;color:#e65100}}
+.gagaho.full{{background:#ffcdd2;color:#b71c1c}}
+.gagaho.empty{{background:#f0f0f0;color:#aaa}}
 .charisma.avail{{background:#bbdefb;color:#0d47a1}}
 .charisma.full{{background:#ffcdd2;color:#b71c1c}}
 .charisma.empty{{background:#f0f0f0;color:#aaa}}
@@ -712,30 +737,30 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 </style>
 </head>
 <body>
-<h1>🎣 낚시 예약 현황 — 지도호·라온호·카리스마호</h1>
+<h1>🎣 낚시 예약 현황 — 지도호·가가호·카리스마호</h1>
 <p class="subtitle">
   <a href="{JIDO_URL}" target="_blank">지도호 예약 페이지 ↗</a>
   &nbsp;|&nbsp;
-  <a href="{RAON_URL}" target="_blank">라온호 예약 페이지 ↗</a>
+  <a href="{GAGAHO_URL}" target="_blank">가가호 예약 페이지 ↗</a>
   &nbsp;|&nbsp;
   <a href="{CHARISMA_URL}" target="_blank">카리스마호 예약 페이지 ↗</a>
 </p>
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('jido-raon')">🟢🟠 지도호·라온호</button>
+  <button class="tab-btn active" onclick="switchTab('jido-gagaho')">🟢🟠 지도호·가가호</button>
   <button class="tab-btn charisma-tab" onclick="switchTab('charisma')">🔵 카리스마호</button>
 </div>
-<div id="tab-jido-raon" class="tab-content active">
+<div id="tab-jido-gagaho" class="tab-content active">
 {jr_alert_html}
 <div class="legend">
   <div class="legend-item"><span class="dot" style="background:#c8f0c0;border:1px solid #81c784"></span>지도호 예약가능</div>
-  <div class="legend-item"><span class="dot" style="background:#ffe0b2;border:1px solid #ffb74d"></span>라온호 예약가능</div>
+  <div class="legend-item"><span class="dot" style="background:#ffe0b2;border:1px solid #ffb74d"></span>가가호 예약가능</div>
   <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
   <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
   <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
   <div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>
 </div>
 <div class="months">{"".join(months_html)}</div>
-</div><!-- end tab-jido-raon -->
+</div><!-- end tab-jido-gagaho -->
 <div id="tab-charisma" class="tab-content">
 {charisma_alert_html}
 <div class="legend">
@@ -758,9 +783,9 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 function switchTab(tab){{
   document.querySelectorAll('.tab-btn').forEach(function(b){{b.classList.remove('active');}});
   document.querySelectorAll('.tab-content').forEach(function(c){{c.classList.remove('active');}});
-  if(tab==='jido-raon'){{
+  if(tab==='jido-gagaho'){{
     document.querySelector('.tab-btn:not(.charisma-tab)').classList.add('active');
-    document.getElementById('tab-jido-raon').classList.add('active');
+    document.getElementById('tab-jido-gagaho').classList.add('active');
   }}else{{
     document.querySelector('.charisma-tab').classList.add('active');
     document.getElementById('tab-charisma').classList.add('active');
@@ -896,22 +921,22 @@ def main():
     # 이전 데이터 로드
     old_data_json      = {}
     old_jido           = {}
-    old_raon           = {}
+    old_gagaho         = {}
     old_charisma       = {}
     if os.path.exists("data.json"):
         try:
             with open("data.json", encoding="utf-8") as f:
                 old_data_json = json.load(f)
                 old_jido = old_data_json.get("reservations", {})
-                old_raon = old_data_json.get("raon_reservations", {})
+                old_gagaho = old_data_json.get("gagaho_reservations", {})
                 old_charisma = old_data_json.get("charisma_reservations", {})
         except Exception:
             pass
 
     print("=== 지도호 크롤링 ===")
     jido_data = crawl_reservations()
-    print("=== 라온호 크롤링 ===")
-    raon_data = crawl_raon()
+    print("=== 가가호 크롤링 ===")
+    gagaho_data = crawl_gagaho()
     print("=== 카리스마호 크롤링 ===")
     charisma_data = crawl_charisma()
 
@@ -933,7 +958,7 @@ def main():
     kr_holidays = get_korean_holidays()
     now_kst = datetime.now(KST)
 
-    changed = jido_data != old_jido or raon_data != old_raon or charisma_data != old_charisma
+    changed = jido_data != old_jido or gagaho_data != old_gagaho or charisma_data != old_charisma
     if changed or not old_data_json.get("last_changed_at"):
         last_changed_at = now_kst
     else:
@@ -951,7 +976,7 @@ def main():
                 "last_changed_at":        last_changed_at.isoformat(),
                 "updated_at":             now_kst.isoformat(),
                 "reservations":           jido_data,
-                "raon_reservations":      raon_data,
+                "gagaho_reservations":    gagaho_data,
                 "charisma_reservations":  charisma_data,
             },
             f,
@@ -959,14 +984,14 @@ def main():
             indent=2,
         )
 
-    html = generate_html(jido_data, raon_data, charisma_data, kr_holidays,
+    html = generate_html(jido_data, gagaho_data, charisma_data, kr_holidays,
                          last_run_at=now_kst, last_changed_at=last_changed_at)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
     print("index.html 생성 완료")
 
     notify_changes(jido_data, old_jido, kr_holidays, label="지도호", res_url=JIDO_URL)
-    notify_changes(raon_data, old_raon, kr_holidays, label="라온호", res_url=RAON_URL)
+    notify_changes(gagaho_data, old_gagaho, kr_holidays, label="가가호", res_url=GAGAHO_URL)
     notify_changes(charisma_data, old_charisma, kr_holidays, label="카리스마호", res_url=CHARISMA_URL)
 
 

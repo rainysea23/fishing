@@ -384,5 +384,5 @@ cd ~/fishing && git status && git log --oneline -3
 - GitHub 저장소: `https://github.com/rainysea23/fishing`
 - Oracle Cloud 콘솔: `https://cloud.oracle.com`
 - 지도호 예약 페이지: `http://www.newjidoho.com/index.php?mid=bk`
-- 라온호 예약 페이지: `http://www.raonfishing.com/index.php?mid=bk`
+- 가가호 예약 페이지: `https://gagaho.sunsang24.com/ship/schedule_fleet`
 - 크롤링 결과 페이지: `https://rainysea23.github.io/fishing/` (GitHub Pages)
