@@ -441,25 +441,23 @@ def crawl_charisma():
 
 # ─── HTML 생성 ───────────────────────────────────────────────
 
-def _fish_badge_html(fish, fish_type):
-    """어종·낚시종류 배지 HTML — 어종은 🐟 파랑, 낚시종류는 🎣 보라로 구분"""
-    parts = []
-    if fish:
-        parts.append(f'<span class="b-fish" title="{html.escape(fish)}">🐟{html.escape(fish)}</span>')
-    if fish_type:
-        parts.append(f'<span class="b-type" title="{html.escape(fish_type)}">🎣{html.escape(fish_type)}</span>')
-    return "".join(parts)
+def _fish_badge_html(fish):
+    """어종 배지 HTML — 앞의 어종 한 단어만 표시 (🐟 파랑), 전체 목록은 툴팁"""
+    if not fish:
+        return ""
+    first = re.split(r"[,\s·]+", fish)[0]
+    return f'<span class="b-fish" title="{html.escape(fish)}">🐟{html.escape(first)}</span>'
 
 
-def _boat_row(cls_boat, status_cls, rem, link, my_booking=False, fish="", fish_type=""):
-    """배 한 줄 HTML 생성 (물때는 날짜 옆에 별도 표시, 어종·낚시종류는 배지로 표시)"""
+def _boat_row(cls_boat, status_cls, rem, link, my_booking=False, fish=""):
+    """배 한 줄 HTML 생성 (물때는 날짜 옆에 별도 표시, 어종은 배지로 표시)"""
     mine_cls  = " mine" if my_booking else ""
     star_html = '<span class="bstar">★</span>' if my_booking else ""
     return (
         f'<a class="boat {cls_boat} {status_cls}{mine_cls}" href="{link}" target="_blank">'
         f'{star_html}'
         f'<span class="brem">{rem}</span>'
-        f'{_fish_badge_html(fish, fish_type)}'
+        f'{_fish_badge_html(fish)}'
         f'</a>'
     )
 
@@ -507,13 +505,12 @@ def gen_boat_month(year, month, today, data, boat_key, korean_holidays):
             rem = status_cls = tide = ""
             my_booking = False
             companions = []
-            fish = ftype = ""
+            fish = ""
             if ds in data:
                 info = data[ds]
                 my_booking = info.get("my_booking", False)
                 companions = info.get("companions", [])
-                fish  = info.get("fish", "")
-                ftype = info.get("fish_type", "")
+                fish = info.get("fish", "")
                 if d >= today:
                     st = info["status"]
                     if st == "full":
@@ -541,7 +538,7 @@ def gen_boat_month(year, month, today, data, boat_key, korean_holidays):
                 boats_html = (
                     '<div class="boats">'
                     + _boat_row(boat["cls"], status_cls, rem, _res_link(boat_key, year, month, day),
-                                my_booking, fish, ftype)
+                                my_booking, fish)
                     + '</div>'
                 )
 
@@ -619,7 +616,7 @@ def generate_html(jido_data, gagaho_data, charisma_data, korean_holidays, last_r
             f'<div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>'
             f'<div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>'
             f'<div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>'
-            f'<div class="legend-item"><span style="color:#0277bd;font-weight:bold">🐟 어종</span> <span style="color:#7b1fa2;font-weight:bold">🎣 낚시종류</span></div>'
+            f'<div class="legend-item"><span style="color:#0277bd;font-weight:bold">🐟 어종</span></div>'
             f'<div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>'
             f'</div>'
         )
@@ -719,7 +716,6 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .bstar{{font-weight:bold;color:#3949ab;margin-right:1px;flex:0 0 auto}}
 .brem{{font-weight:bold;flex:0 0 auto}}
 .b-fish{{color:#0277bd;font-size:.7em;font-weight:bold;line-height:1.25;flex:0 0 100%;white-space:normal;text-align:left}}
-.b-type{{color:#7b1fa2;font-size:.7em;line-height:1.25;flex:0 0 100%;white-space:normal;text-align:left}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
 .jido.full{{background:#ffcdd2;color:#b71c1c}}
 .jido.empty{{background:#f0f0f0;color:#aaa}}
