@@ -8,6 +8,7 @@ import json
 import re
 import os
 import sys
+import html
 import calendar
 from datetime import datetime, date, timedelta, timezone
 
@@ -107,6 +108,32 @@ def _get_full_text(elem):
     return text + " " + " ".join(img_alts)
 
 
+# 어종·낚시종류 분리에 쓰는 어종 단어 목록 (긴 단어 우선 매칭)
+FISH_WORDS = sorted([
+    "갑오징어", "주꾸미", "쭈꾸미", "우럭", "광어", "농어", "참돔", "감성돔", "돌돔",
+    "벵에돔", "백조기", "꽃게", "갈치", "숭어", "방어", "부시리", "대삼치", "삼치",
+    "고등어", "볼락", "도다리", "붕장어", "아나고", "학꽁치", "열기", "문어",
+    "오징어", "두족류", "참갑", "광갑", "쭈갑",
+], key=len, reverse=True)
+
+
+def _split_fish_type(text):
+    """'참돔 타이라바' → ('참돔','타이라바') — 선두 어종 단어 기준으로 어종/낚시종류 분리, 실패 시 전체를 어종으로"""
+    t = re.sub(r"\s+", " ", text).strip()
+    if not t:
+        return "", ""
+    for w in FISH_WORDS:
+        if t.startswith(w):
+            rest = t[len(w):].strip(" ,·")
+            if not rest:
+                return w, ""
+            # 공백·가운뎃점으로 분리됐거나, 나머지가 다른 어종이 아니면 낚시종류로 분리
+            # (쉼표는 구분자 아님 — '광어,우럭,농어' 같은 복수 어종 목록을 쪼개지 않도록)
+            if t[len(w)] in " ·" or not any(rest.startswith(f) for f in FISH_WORDS):
+                return w, rest
+    return t, ""
+
+
 def _parse_divs(day_divs):
     """BeautifulSoup div 목록에서 날짜별 데이터 추출 (지도호 전용)"""
     results = {}
@@ -134,6 +161,14 @@ def _parse_divs(day_divs):
             parts = header_text.split(",")
             if len(parts) >= 3:
                 tide = parts[2].strip()
+        # 낚시종류 추출 (예약현황 셀 내 '낚시종류' 라벨 옆 값, 예: 참돔 타이라바)
+        fish = fish_type = ""
+        fish_lbl = div.find("div", string=re.compile(r"^\s*낚시종류\s*$"))
+        if fish_lbl:
+            fish_td = fish_lbl.find_parent("td")
+            val_td = fish_td.find_next_sibling("td") if fish_td else None
+            if val_td:
+                fish, fish_type = _split_fish_type(val_td.get_text(strip=True))
         # 예약·입금대기 행에서만 이름 추출 (취소 포함 행 제외, img alt 텍스트 포함)
         active_rows = [
             row for row in div.find_all("tr")
@@ -147,6 +182,7 @@ def _parse_divs(day_divs):
         results[date_str] = {
             "date": date_str, "remaining": remaining, "status": status,
             "tide": tide, "my_booking": my_booking, "companions": companions,
+            "fish": fish, "fish_type": fish_type,
         }
     return results
 
@@ -332,6 +368,17 @@ def _crawl_sunsang24(base_url, reservation_url, label, ship_filter=None):
                                         except ValueError:
                                             status = "available"
 
+                    # 어종·낚시종류 추출 (fishspecies li: '어종 : 광어,우럭 / 생미끼 외수질')
+                    fish = fish_type = ""
+                    fish_li = target.find("li", class_="fishspecies")
+                    if fish_li:
+                        fish_div = fish_li.find("div", id="fish")
+                        if fish_div:
+                            fish = re.sub(r"\s+", " ", fish_div.get_text(strip=True)).strip()
+                        m = re.search(r"/\s*([^/]+)\s*$", fish_li.get_text(" ", strip=True))
+                        if m:
+                            fish_type = re.sub(r"\s+", " ", m.group(1)).strip()
+
                     # API로 예약자 이름 조회
                     my_booking = False
                     companions = []
@@ -366,6 +413,8 @@ def _crawl_sunsang24(base_url, reservation_url, label, ship_filter=None):
                             "tide": tide,
                             "my_booking": my_booking,
                             "companions": companions,
+                            "fish": fish,
+                            "fish_type": fish_type,
                         }
                         count += 1
 
@@ -392,20 +441,48 @@ def crawl_charisma():
 
 # ─── HTML 생성 ───────────────────────────────────────────────
 
-def _boat_row(label, cls_boat, status_cls, rem, link, my_booking=False):
-    """배 한 줄 HTML 생성 (물때는 날짜 옆에 별도 표시)"""
+def _fish_badge_html(fish, fish_type):
+    """어종·낚시종류 배지 HTML — 어종은 🐟 파랑, 낚시종류는 🎣 보라로 구분"""
+    parts = []
+    if fish:
+        parts.append(f'<span class="b-fish" title="{html.escape(fish)}">🐟{html.escape(fish)}</span>')
+    if fish_type:
+        parts.append(f'<span class="b-type" title="{html.escape(fish_type)}">🎣{html.escape(fish_type)}</span>')
+    return "".join(parts)
+
+
+def _boat_row(cls_boat, status_cls, rem, link, my_booking=False, fish="", fish_type=""):
+    """배 한 줄 HTML 생성 (물때는 날짜 옆에 별도 표시, 어종·낚시종류는 배지로 표시)"""
     mine_cls  = " mine" if my_booking else ""
     star_html = '<span class="bstar">★</span>' if my_booking else ""
     return (
         f'<a class="boat {cls_boat} {status_cls}{mine_cls}" href="{link}" target="_blank">'
         f'{star_html}'
         f'<span class="brem">{rem}</span>'
+        f'{_fish_badge_html(fish, fish_type)}'
         f'</a>'
     )
 
 
-def gen_charisma_month(year, month, today, charisma_data, korean_holidays):
-    """카리스마호 전용 월 달력 생성"""
+# 선박별 설정 (탭별 달력 생성에 사용)
+BOATS = {
+    "jido":     {"name": "지도호",   "cls": "jido",     "res_url": JIDO_URL},
+    "gagaho":   {"name": "가가호",   "cls": "gagaho",   "res_url": GAGAHO_URL},
+    "charisma": {"name": "카리스마호", "cls": "charisma", "res_url": CHARISMA_URL},
+}
+
+
+def _res_link(boat_key, year, month, day):
+    """선박 예약 페이지 링크 — 선상24 플랫폼은 월별 페이지, 지도호는 일별 쿼리 파라미터"""
+    res_url = BOATS[boat_key]["res_url"]
+    if "sunsang24.com" in res_url:
+        return f"{res_url}/{year}{month:02d}"
+    return f"{res_url}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
+
+
+def gen_boat_month(year, month, today, data, boat_key, korean_holidays):
+    """선박별 월 달력 생성 (지도호·가가호·카리스마호 각각 별도 탭)"""
+    boat = BOATS[boat_key]
     mn = "1월 2월 3월 4월 5월 6월 7월 8월 9월 10월 11월 12월".split()[month - 1]
     rows = []
     for week in calendar.monthcalendar(year, month):
@@ -427,14 +504,16 @@ def gen_charisma_month(year, month, today, charisma_data, korean_holidays):
             if is_sun:              cls += " sun"
             if is_pub and not is_sun: cls += " hday"
 
-            # 카리스마호 정보
             rem = status_cls = tide = ""
             my_booking = False
             companions = []
-            if ds in charisma_data:
-                info = charisma_data[ds]
+            fish = ftype = ""
+            if ds in data:
+                info = data[ds]
                 my_booking = info.get("my_booking", False)
                 companions = info.get("companions", [])
+                fish  = info.get("fish", "")
+                ftype = info.get("fish_type", "")
                 if d >= today:
                     st = info["status"]
                     if st == "full":
@@ -456,103 +535,13 @@ def gen_charisma_month(year, month, today, charisma_data, korean_holidays):
             hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
             companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
 
-            charisma_link = f"{CHARISMA_URL}/{year}{month:02d}"
-
             if d < today:
                 boats_html = ""
             else:
                 boats_html = (
                     '<div class="boats">'
-                    + _boat_row("카리스마", "charisma", status_cls, rem, charisma_link, my_booking)
-                    + '</div>'
-                )
-
-            cells.append(
-                f'<td><div class="cell {cls}" data-date="{ds}">'
-                f'<div class="day-hd"><span class="num">{day}</span>{tide_html}</div>'
-                f'{hname_html}{companion_html}'
-                f'{boats_html}</div></td>'
-            )
-        rows.append(f'<tr>{"".join(cells)}</tr>')
-
-    return (
-        f'<div class="month"><div class="month-title">{year}년 {mn}</div>'
-        f'<table><thead><tr>'
-        f'<th>월</th><th>화</th><th>수</th><th>목</th><th>금</th>'
-        f'<th class="sat">토</th><th class="sun">일</th>'
-        f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
-def gen_month(year, month, today, jido_data, gagaho_data, korean_holidays):
-    mn = "1월 2월 3월 4월 5월 6월 7월 8월 9월 10월 11월 12월".split()[month - 1]
-    rows = []
-    for week in calendar.monthcalendar(year, month):
-        cells = []
-        for wd, day in enumerate(week):
-            if day == 0:
-                cells.append("<td></td>")
-                continue
-            d = date(year, month, day)
-            ds = d.strftime("%Y%m%d")
-            is_sat    = wd == 5
-            is_sun    = wd == 6
-            is_pub    = d in korean_holidays
-            hname     = korean_holidays.get(d, "")
-
-            cls = "past" if d < today else "base"
-            if d == today:          cls += " today"
-            if is_sat:              cls += " sat"
-            if is_sun:              cls += " sun"
-            if is_pub and not is_sun: cls += " hday"
-
-            def boat_info(data):
-                rem = status_cls = tide = ""
-                my_booking = False
-                companions = []
-                if ds in data:
-                    info = data[ds]
-                    my_booking = info.get("my_booking", False)
-                    companions = info.get("companions", [])
-                    if d >= today:
-                        st = info["status"]
-                        if st == "full":
-                            rem, status_cls = "마감", "full"
-                        elif st == "available":
-                            rem = f"{info['remaining']}명" if info["remaining"] is not None else "가능"
-                            status_cls = "avail"
-                        else:
-                            status_cls = "empty"
-                        tide = info.get("tide", "")
-                    else:
-                        status_cls = "empty"
-                else:
-                    status_cls = "empty"
-                return rem, status_cls, tide, my_booking, companions
-
-            jido_rem, jido_cls, jido_tide, jido_mine, jido_comp = boat_info(jido_data)
-            gagaho_rem, gagaho_cls, gagaho_tide, gagaho_mine, gagaho_comp = boat_info(gagaho_data)
-
-            my_booking = jido_mine or gagaho_mine
-            companions = list(dict.fromkeys(jido_comp + gagaho_comp))  # 중복 제거, 순서 유지
-            if my_booking: cls += " mine"
-
-            # 물때: 지도호 우선, 없으면 가가호
-            tide = jido_tide or gagaho_tide
-            tide_html      = f'<span class="tide">{tide}</span>' if tide else ""
-            hname_html     = f'<span class="hname">{hname}</span>' if hname else ""
-            companion_html = "".join(f'<span class="companion">{c}</span>' for c in companions)
-
-            jido_link = f"{JIDO_URL}&year={year}&month={month:02d}&day={day:02d}&mode=list#list"
-            gagaho_link = f"{GAGAHO_URL}/{year}{month:02d}"
-
-            if d < today:
-                boats_html = ""
-            else:
-                boats_html = (
-                    '<div class="boats">'
-                    + _boat_row("지도", "jido", jido_cls, jido_rem, jido_link, jido_mine)
-                    + _boat_row("가가", "gagaho", gagaho_cls, gagaho_rem, gagaho_link, gagaho_mine)
+                    + _boat_row(boat["cls"], status_cls, rem, _res_link(boat_key, year, month, day),
+                                my_booking, fish, ftype)
                     + '</div>'
                 )
 
@@ -581,21 +570,23 @@ def generate_html(jido_data, gagaho_data, charisma_data, korean_holidays, last_r
     if last_changed_at is None:
         last_changed_at = now_kst
 
-    def holiday_available(data, label, res_url):
+    def holiday_available(data, res_url):
         result = []
         for ds, info in sorted(data.items()):
             d = date(int(ds[:4]), int(ds[4:6]), int(ds[6:8]))
             if info["status"] == "available" and is_holiday(d, korean_holidays) and d >= today:
-                result.append((d, info, label, res_url))
+                result.append((d, info, res_url))
         return result
 
-    jido_avail = holiday_available(jido_data, "지도호", JIDO_URL)
-    gagaho_avail = holiday_available(gagaho_data, "가가호", GAGAHO_URL)
-    charisma_avail = holiday_available(charisma_data, "카리스마호", CHARISMA_URL)
+    avail = {
+        "jido":     holiday_available(jido_data, JIDO_URL),
+        "gagaho":   holiday_available(gagaho_data, GAGAHO_URL),
+        "charisma": holiday_available(charisma_data, CHARISMA_URL),
+    }
 
     def make_alert_items(avail_list, res_url):
         items = []
-        for d, info, _, _ in avail_list:
+        for d, info, _ in avail_list:
             hname = korean_holidays.get(d, "")
             wd    = "월화수목금토일"[d.weekday()]
             dtype = f"공휴일({hname})" if d.weekday() < 5 and hname else ""
@@ -612,44 +603,58 @@ def generate_html(jido_data, gagaho_data, charisma_data, korean_holidays, last_r
             )
         return "".join(items)
 
-    # 지도호·가가호 탭용 알림
-    jr_alert_parts = []
-    if jido_avail:
-        jr_alert_parts.append(
-            f'<div class="alert alert-jido">'
-            f'<h3>🟢 지도호 휴일·주말 빈자리</h3>'
-            f'<ul>{make_alert_items(jido_avail, JIDO_URL)}</ul></div>'
-        )
-    if gagaho_avail:
-        jr_alert_parts.append(
-            f'<div class="alert alert-gagaho">'
-            f'<h3>🟠 가가호 휴일·주말 빈자리</h3>'
-            f'<ul>{make_alert_items(gagaho_avail, GAGAHO_URL)}</ul></div>'
-        )
-    jr_alert_html = "".join(jr_alert_parts)
+    # 선박별 탭: 알림 + 범례 + 6개월 달력
+    TAB_EMOJI = {"jido": "🟢", "gagaho": "🟠", "charisma": "🔵"}
+    TAB_DOT   = {
+        "jido":     ("#c8f0c0", "#81c784"),
+        "gagaho":   ("#ffe0b2", "#ffb74d"),
+        "charisma": ("#bbdefb", "#64b5f6"),
+    }
 
-    # 카리스마호 탭용 알림
-    charisma_alert_html = ""
-    if charisma_avail:
-        charisma_alert_html = (
-            f'<div class="alert alert-charisma">'
-            f'<h3>🔵 카리스마호 휴일·주말 빈자리</h3>'
-            f'<ul>{make_alert_items(charisma_avail, CHARISMA_URL)}</ul></div>'
+    def legend_html(boat_key):
+        bg, bd = TAB_DOT[boat_key]
+        return (
+            f'<div class="legend">'
+            f'<div class="legend-item"><span class="dot" style="background:{bg};border:1px solid {bd}"></span>{BOATS[boat_key]["name"]} 예약가능</div>'
+            f'<div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>'
+            f'<div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>'
+            f'<div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>'
+            f'<div class="legend-item"><span style="color:#0277bd;font-weight:bold">🐟 어종</span> <span style="color:#7b1fa2;font-weight:bold">🎣 낚시종류</span></div>'
+            f'<div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>'
+            f'</div>'
         )
 
-    months_html = []
+    boat_data = {
+        "jido":     jido_data,
+        "gagaho":   gagaho_data,
+        "charisma": charisma_data,
+    }
+    boat_months = {key: [] for key in BOATS}
     for offset in range(6):
         m = today.month + offset
         y = today.year + (m - 1) // 12
         m = ((m - 1) % 12) + 1
-        months_html.append(gen_month(y, m, today, jido_data, gagaho_data, korean_holidays))
+        for key, data in boat_data.items():
+            boat_months[key].append(gen_boat_month(y, m, today, data, key, korean_holidays))
 
-    charisma_months_html = []
-    for offset in range(6):
-        m = today.month + offset
-        y = today.year + (m - 1) // 12
-        m = ((m - 1) % 12) + 1
-        charisma_months_html.append(gen_charisma_month(y, m, today, charisma_data, korean_holidays))
+    tab_blocks = []
+    for key in ["jido", "gagaho", "charisma"]:
+        alert_html = ""
+        if avail[key]:
+            alert_html = (
+                f'<div class="alert alert-{key}">'
+                f'<h3>{TAB_EMOJI[key]} {BOATS[key]["name"]} 휴일·주말 빈자리</h3>'
+                f'<ul>{make_alert_items(avail[key], BOATS[key]["res_url"])}</ul></div>'
+            )
+        active = " active" if key == "jido" else ""
+        tab_blocks.append(
+            f'<div id="tab-{key}" class="tab-content{active}">'
+            f'{alert_html}'
+            f'{legend_html(key)}'
+            f'<div class="months">{"".join(boat_months[key])}</div>'
+            f'</div><!-- end tab-{key} -->'
+        )
+    tabs_html = "".join(tab_blocks)
 
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -667,6 +672,7 @@ h1{{text-align:center;color:#1a5e0e;font-size:1.5em;margin:10px 0 4px}}
 .tabs{{display:flex;justify-content:center;gap:0;max-width:600px;margin:0 auto 8px}}
 .tab-btn{{padding:8px 20px;border:2px solid #ccc;background:#f5f5f5;cursor:pointer;font-size:.9em;font-weight:bold;transition:all .2s;border-radius:8px 8px 0 0;margin:0 2px;color:#666}}
 .tab-btn.active{{background:#1a5e0e;color:#fff;border-color:#1a5e0e}}
+.tab-btn.gagaho-tab.active{{background:#e65100;border-color:#e65100}}
 .tab-btn.charisma-tab.active{{background:#0d47a1;border-color:#0d47a1}}
 .tab-content{{display:none}}
 .tab-content.active{{display:block}}
@@ -710,8 +716,10 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .boats{{width:100%;display:flex;flex-direction:column;gap:2px;margin-top:3px}}
 .boat{{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:.68em;text-decoration:none;cursor:pointer;transition:filter .15s}}
 .boat:hover{{filter:brightness(.88)}}
-.bstar{{font-weight:bold;color:#3949ab;margin-right:1px}}
-.brem{{font-weight:bold}}
+.bstar{{font-weight:bold;color:#3949ab;margin-right:1px;flex:0 0 auto}}
+.brem{{font-weight:bold;flex:0 0 auto}}
+.b-fish{{color:#0277bd;font-size:.62em;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}}
+.b-type{{color:#7b1fa2;font-size:.62em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
 .jido.full{{background:#ffcdd2;color:#b71c1c}}
 .jido.empty{{background:#f0f0f0;color:#aaa}}
@@ -746,32 +754,11 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
   <a href="{CHARISMA_URL}" target="_blank">카리스마호 예약 페이지 ↗</a>
 </p>
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('jido-gagaho')">🟢🟠 지도호·가가호</button>
+  <button class="tab-btn jido-tab active" onclick="switchTab('jido')">🟢 지도호</button>
+  <button class="tab-btn gagaho-tab" onclick="switchTab('gagaho')">🟠 가가호</button>
   <button class="tab-btn charisma-tab" onclick="switchTab('charisma')">🔵 카리스마호</button>
 </div>
-<div id="tab-jido-gagaho" class="tab-content active">
-{jr_alert_html}
-<div class="legend">
-  <div class="legend-item"><span class="dot" style="background:#c8f0c0;border:1px solid #81c784"></span>지도호 예약가능</div>
-  <div class="legend-item"><span class="dot" style="background:#ffe0b2;border:1px solid #ffb74d"></span>가가호 예약가능</div>
-  <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
-  <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
-  <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
-  <div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>
-</div>
-<div class="months">{"".join(months_html)}</div>
-</div><!-- end tab-jido-gagaho -->
-<div id="tab-charisma" class="tab-content">
-{charisma_alert_html}
-<div class="legend">
-  <div class="legend-item"><span class="dot" style="background:#bbdefb;border:1px solid #64b5f6"></span>카리스마호 예약가능</div>
-  <div class="legend-item"><span class="dot" style="background:#ffcdd2;border:1px solid #ef9a9a"></span>마감</div>
-  <div class="legend-item"><span class="dot" style="background:#fff9c4;border:2px solid #f9a825"></span>오늘</div>
-  <div class="legend-item"><span class="dot" style="background:#e8eaf6;border:2px solid #3949ab"></span>내 예약</div>
-  <div class="legend-item">📝 더블클릭·길게누르기 = 메모</div>
-</div>
-<div class="months">{"".join(charisma_months_html)}</div>
-</div><!-- end tab-charisma -->
+{tabs_html}
 <p class="foot">
   🤖 마지막 자동실행: {last_run_at.strftime("%Y년 %m월 %d일 %H:%M")} KST
   &nbsp;|&nbsp;
@@ -783,13 +770,8 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 function switchTab(tab){{
   document.querySelectorAll('.tab-btn').forEach(function(b){{b.classList.remove('active');}});
   document.querySelectorAll('.tab-content').forEach(function(c){{c.classList.remove('active');}});
-  if(tab==='jido-gagaho'){{
-    document.querySelector('.tab-btn:not(.charisma-tab)').classList.add('active');
-    document.getElementById('tab-jido-gagaho').classList.add('active');
-  }}else{{
-    document.querySelector('.charisma-tab').classList.add('active');
-    document.getElementById('tab-charisma').classList.add('active');
-  }}
+  document.querySelector('.tab-btn.'+tab+'-tab').classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
 }}
 (function(){{
   var P='jido_note_';
