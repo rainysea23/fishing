@@ -714,12 +714,12 @@ td{{padding:2px;height:auto;min-height:68px;vertical-align:top}}
 .sun .num{{color:#b71c1c!important}}
 .hday .num{{color:#b71c1c!important}}
 .boats{{width:100%;display:flex;flex-direction:column;gap:2px;margin-top:3px}}
-.boat{{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:.68em;text-decoration:none;cursor:pointer;transition:filter .15s}}
+.boat{{display:flex;align-items:center;gap:3px;padding:2px 4px;border-radius:3px;font-size:.68em;text-decoration:none;cursor:pointer;transition:filter .15s;flex-wrap:wrap}}
 .boat:hover{{filter:brightness(.88)}}
 .bstar{{font-weight:bold;color:#3949ab;margin-right:1px;flex:0 0 auto}}
 .brem{{font-weight:bold;flex:0 0 auto}}
-.b-fish{{color:#0277bd;font-size:.62em;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}}
-.b-type{{color:#7b1fa2;font-size:.62em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}}
+.b-fish{{color:#0277bd;font-size:.7em;font-weight:bold;line-height:1.25;flex:0 0 100%;white-space:normal;text-align:left}}
+.b-type{{color:#7b1fa2;font-size:.7em;line-height:1.25;flex:0 0 100%;white-space:normal;text-align:left}}
 .jido.avail{{background:#c8f0c0;color:#1b5e20}}
 .jido.full{{background:#ffcdd2;color:#b71c1c}}
 .jido.empty{{background:#f0f0f0;color:#aaa}}
