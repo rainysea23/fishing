@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-17T09:06:56.033660+09:00",
-  "last_changed_at": "2026-08-17T09:06:56.033660+09:00",
-  "updated_at": "2026-08-17T09:06:56.033660+09:00",
+  "last_run_at": "2026-08-17T10:31:35.683044+09:00",
+  "last_changed_at": "2026-08-17T10:31:35.683044+09:00",
+  "updated_at": "2026-08-17T10:31:35.683044+09:00",
   "reservations": {
     "20260801": {
       "date": "20260801",
@@ -1259,23 +1259,23 @@
     },
     "20260818": {
       "date": "20260818",
-      "remaining": 21,
+      "remaining": 17,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
       "companions": [],
-      "fish": "백조기",
-      "fish_type": "생미끼,선상"
+      "fish": "광어,우럭,농어",
+      "fish_type": "생미끼 외수질"
     },
     "20260819": {
       "date": "20260819",
-      "remaining": 21,
+      "remaining": 17,
       "status": "available",
       "tide": "13물",
       "my_booking": false,
       "companions": [],
-      "fish": "백조기",
-      "fish_type": "생미끼,선상"
+      "fish": "광어,우럭,농어",
+      "fish_type": "생미끼 외수질"
     },
     "20260820": {
       "date": "20260820",
@@ -1284,8 +1284,8 @@
       "tide": "조금",
       "my_booking": false,
       "companions": [],
-      "fish": "백조기",
-      "fish_type": "생미끼,선상"
+      "fish": "광어,우럭,농어",
+      "fish_type": "생미끼 외수질"
     },
     "20260821": {
       "date": "20260821",
@@ -1399,8 +1399,8 @@
     },
     "20260902": {
       "date": "20260902",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "12물",
       "my_booking": false,
       "companions": [],
