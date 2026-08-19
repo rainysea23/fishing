@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-19T16:06:40.104495+09:00",
-  "last_changed_at": "2026-08-19T16:06:40.104495+09:00",
-  "updated_at": "2026-08-19T16:06:40.104495+09:00",
+  "last_run_at": "2026-08-19T16:55:14.771216+09:00",
+  "last_changed_at": "2026-08-19T16:55:14.771216+09:00",
+  "updated_at": "2026-08-19T16:55:14.771216+09:00",
   "reservations": {},
   "gagaho_reservations": {
     "20260819": {
@@ -1068,7 +1068,7 @@
     },
     "20260822": {
       "date": "20260822",
-      "remaining": 10,
+      "remaining": 9,
       "status": "available",
       "tide": "1물",
       "my_booking": false,
