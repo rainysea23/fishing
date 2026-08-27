@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-27T23:05:34.400760+09:00",
-  "last_changed_at": "2026-08-27T23:05:34.400760+09:00",
-  "updated_at": "2026-08-27T23:05:34.400760+09:00",
+  "last_run_at": "2026-08-28T00:01:07.207944+09:00",
+  "last_changed_at": "2026-08-28T00:01:07.207944+09:00",
+  "updated_at": "2026-08-28T00:01:07.207944+09:00",
   "reservations": {
     "20260801": {
       "date": "20260801",
@@ -265,13 +265,13 @@
     },
     "20260827": {
       "date": "20260827",
-      "remaining": 5,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "6물",
       "my_booking": false,
       "companions": [],
-      "fish": "참돔",
-      "fish_type": "타이라바"
+      "fish": "",
+      "fish_type": ""
     },
     "20260828": {
       "date": "20260828",
@@ -427,7 +427,7 @@
     },
     "20260912": {
       "date": "20260912",
-      "remaining": 7,
+      "remaining": 5,
       "status": "available",
       "tide": "8물",
       "my_booking": false,
@@ -1247,16 +1247,6 @@
     }
   },
   "gagaho_reservations": {
-    "20260827": {
-      "date": "20260827",
-      "remaining": 8,
-      "status": "available",
-      "tide": "6물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "꽃게",
-      "fish_type": "생미끼,선상"
-    },
     "20260828": {
       "date": "20260828",
       "remaining": 5,
@@ -1279,7 +1269,7 @@
     },
     "20260830": {
       "date": "20260830",
-      "remaining": 7,
+      "remaining": 5,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -2199,19 +2189,9 @@
     }
   },
   "charisma_reservations": {
-    "20260827": {
-      "date": "20260827",
-      "remaining": 3,
-      "status": "available",
-      "tide": "6물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "참돔",
-      "fish_type": "선상,지깅,타이라바"
-    },
     "20260828": {
       "date": "20260828",
-      "remaining": 3,
+      "remaining": 4,
       "status": "available",
       "tide": "7물",
       "my_booking": false,
