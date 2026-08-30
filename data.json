@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-30T07:09:23.986262+09:00",
-  "last_changed_at": "2026-08-30T07:09:23.986262+09:00",
-  "updated_at": "2026-08-30T07:09:23.986262+09:00",
+  "last_run_at": "2026-08-30T09:21:19.624204+09:00",
+  "last_changed_at": "2026-08-30T09:21:19.624204+09:00",
+  "updated_at": "2026-08-30T09:21:19.624204+09:00",
   "reservations": {
     "20260801": {
       "date": "20260801",
@@ -315,18 +315,18 @@
     },
     "20260901": {
       "date": "20260901",
-      "remaining": 18,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "11물",
-      "my_booking": false,
+      "my_booking": true,
       "companions": [],
       "fish": "주꾸미",
       "fish_type": "출조"
     },
     "20260902": {
       "date": "20260902",
-      "remaining": 16,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "한객기",
       "my_booking": false,
       "companions": [],
@@ -335,7 +335,7 @@
     },
     "20260903": {
       "date": "20260903",
-      "remaining": 14,
+      "remaining": 3,
       "status": "available",
       "tide": "대객기",
       "my_booking": false,
@@ -345,10 +345,10 @@
     },
     "20260904": {
       "date": "20260904",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 7,
+      "status": "available",
       "tide": "조금",
-      "my_booking": true,
+      "my_booking": false,
       "companions": [
         "이*병"
       ],
@@ -397,7 +397,7 @@
     },
     "20260909": {
       "date": "20260909",
-      "remaining": 16,
+      "remaining": 15,
       "status": "available",
       "tide": "4물",
       "my_booking": false,
@@ -417,8 +417,8 @@
     },
     "20260911": {
       "date": "20260911",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "7물",
       "my_booking": false,
       "companions": [],
@@ -437,7 +437,7 @@
     },
     "20260913": {
       "date": "20260913",
-      "remaining": 9,
+      "remaining": 8,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -2347,7 +2347,7 @@
     },
     "20260916": {
       "date": "20260916",
-      "remaining": 4,
+      "remaining": 5,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
