@@ -1,318 +1,8 @@
 {
-  "last_run_at": "2026-08-31T22:52:07.238466+09:00",
-  "last_changed_at": "2026-08-31T22:52:07.238466+09:00",
-  "updated_at": "2026-08-31T22:52:07.238466+09:00",
+  "last_run_at": "2026-09-01T05:06:21.509616+09:00",
+  "last_changed_at": "2026-09-01T05:06:21.509616+09:00",
+  "updated_at": "2026-09-01T05:06:21.509616+09:00",
   "reservations": {
-    "20260801": {
-      "date": "20260801",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "10물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260802": {
-      "date": "20260802",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "11물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260803": {
-      "date": "20260803",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "한객기",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260804": {
-      "date": "20260804",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "대객기",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260805": {
-      "date": "20260805",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "조금",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260806": {
-      "date": "20260806",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "무시",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260807": {
-      "date": "20260807",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "1물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260808": {
-      "date": "20260808",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "2물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260809": {
-      "date": "20260809",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "3물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260810": {
-      "date": "20260810",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "4물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260811": {
-      "date": "20260811",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260812": {
-      "date": "20260812",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "6물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260813": {
-      "date": "20260813",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "7물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260814": {
-      "date": "20260814",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "8물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260815": {
-      "date": "20260815",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "9물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260816": {
-      "date": "20260816",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "10물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260817": {
-      "date": "20260817",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "11물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260818": {
-      "date": "20260818",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "한객기",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260819": {
-      "date": "20260819",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "대객기",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260820": {
-      "date": "20260820",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "조금",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260821": {
-      "date": "20260821",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "무시",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260822": {
-      "date": "20260822",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "1물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260823": {
-      "date": "20260823",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "2물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260824": {
-      "date": "20260824",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "3물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260825": {
-      "date": "20260825",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "4물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260826": {
-      "date": "20260826",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260827": {
-      "date": "20260827",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "6물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260828": {
-      "date": "20260828",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "7물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260829": {
-      "date": "20260829",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "8물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260830": {
-      "date": "20260830",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "9물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
-    "20260831": {
-      "date": "20260831",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "10물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "",
-      "fish_type": ""
-    },
     "20260901": {
       "date": "20260901",
       "remaining": 0,
@@ -345,7 +35,7 @@
     },
     "20260904": {
       "date": "20260904",
-      "remaining": 2,
+      "remaining": 1,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
@@ -1247,16 +937,6 @@
     }
   },
   "gagaho_reservations": {
-    "20260831": {
-      "date": "20260831",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "10물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "꽃게",
-      "fish_type": "생미끼,선상"
-    },
     "20260901": {
       "date": "20260901",
       "remaining": 0,
@@ -1379,8 +1059,8 @@
     },
     "20260913": {
       "date": "20260913",
-      "remaining": null,
-      "status": "no_data",
+      "remaining": 0,
+      "status": "full",
       "tide": "9물",
       "my_booking": false,
       "companions": [],
@@ -1389,7 +1069,7 @@
     },
     "20260914": {
       "date": "20260914",
-      "remaining": 20,
+      "remaining": 19,
       "status": "available",
       "tide": "10물",
       "my_booking": false,
@@ -2169,16 +1849,6 @@
     }
   },
   "charisma_reservations": {
-    "20260831": {
-      "date": "20260831",
-      "remaining": 0,
-      "status": "full",
-      "tide": "10물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "참돔",
-      "fish_type": "선상,지깅,타이라바"
-    },
     "20260901": {
       "date": "20260901",
       "remaining": 0,
@@ -2201,8 +1871,8 @@
     },
     "20260903": {
       "date": "20260903",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "13물",
       "my_booking": false,
       "companions": [],
