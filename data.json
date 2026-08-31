@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-08-31T14:36:23.392038+09:00",
-  "last_changed_at": "2026-08-31T14:36:23.392038+09:00",
-  "updated_at": "2026-08-31T14:36:23.392038+09:00",
+  "last_run_at": "2026-08-31T22:52:07.238466+09:00",
+  "last_changed_at": "2026-08-31T22:52:07.238466+09:00",
+  "updated_at": "2026-08-31T22:52:07.238466+09:00",
   "reservations": {
     "20260801": {
       "date": "20260801",
@@ -335,7 +335,7 @@
     },
     "20260903": {
       "date": "20260903",
-      "remaining": 11,
+      "remaining": 7,
       "status": "available",
       "tide": "대객기",
       "my_booking": false,
@@ -345,7 +345,7 @@
     },
     "20260904": {
       "date": "20260904",
-      "remaining": 4,
+      "remaining": 2,
       "status": "available",
       "tide": "조금",
       "my_booking": false,
@@ -697,8 +697,8 @@
     },
     "20261009": {
       "date": "20261009",
-      "remaining": 2,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "5물",
       "my_booking": false,
       "companions": [],
@@ -707,8 +707,8 @@
     },
     "20261010": {
       "date": "20261010",
-      "remaining": 2,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "6물",
       "my_booking": false,
       "companions": [],
@@ -1256,6 +1256,16 @@
       "companions": [],
       "fish": "꽃게",
       "fish_type": "생미끼,선상"
+    },
+    "20260901": {
+      "date": "20260901",
+      "remaining": 0,
+      "status": "full",
+      "tide": "11물",
+      "my_booking": false,
+      "companions": [],
+      "fish": "주꾸미",
+      "fish_type": ""
     },
     "20260902": {
       "date": "20260902",
@@ -2176,7 +2186,7 @@
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260902": {
@@ -2186,7 +2196,7 @@
       "tide": "12물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260903": {
@@ -2196,7 +2206,7 @@
       "tide": "13물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260904": {
@@ -2208,7 +2218,7 @@
       "companions": [
         "박완교"
       ],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260905": {
@@ -2218,7 +2228,7 @@
       "tide": "무시",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260906": {
@@ -2228,7 +2238,7 @@
       "tide": "1물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260907": {
@@ -2238,7 +2248,7 @@
       "tide": "2물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260908": {
@@ -2248,7 +2258,7 @@
       "tide": "3물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260909": {
@@ -2258,7 +2268,7 @@
       "tide": "4물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260910": {
@@ -2268,7 +2278,7 @@
       "tide": "5물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260911": {
@@ -2280,7 +2290,7 @@
       "companions": [
         "강상규"
       ],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260912": {
@@ -2290,7 +2300,7 @@
       "tide": "8물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260913": {
@@ -2302,7 +2312,7 @@
       "companions": [
         "박완교"
       ],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260914": {
@@ -2312,7 +2322,7 @@
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260915": {
@@ -2322,7 +2332,7 @@
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260916": {
@@ -2332,7 +2342,7 @@
       "tide": "12물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260917": {
@@ -2342,17 +2352,17 @@
       "tide": "13물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260918": {
       "date": "20260918",
-      "remaining": 2,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "조금",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260919": {
@@ -2362,7 +2372,7 @@
       "tide": "무시",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260920": {
@@ -2372,7 +2382,7 @@
       "tide": "1물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260921": {
@@ -2382,7 +2392,7 @@
       "tide": "2물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260922": {
@@ -2392,7 +2402,7 @@
       "tide": "3물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미",
+      "fish": "주꾸미,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20260923": {
@@ -2473,7 +2483,7 @@
     },
     "20260930": {
       "date": "20260930",
-      "remaining": 8,
+      "remaining": 7,
       "status": "available",
       "tide": "11물",
       "my_booking": false,
@@ -2545,8 +2555,8 @@
     },
     "20261007": {
       "date": "20261007",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "3물",
       "my_booking": false,
       "companions": [],
@@ -2617,7 +2627,7 @@
     },
     "20261014": {
       "date": "20261014",
-      "remaining": 2,
+      "remaining": 1,
       "status": "available",
       "tide": "10물",
       "my_booking": false,
@@ -2771,7 +2781,7 @@
     },
     "20261029": {
       "date": "20261029",
-      "remaining": 11,
+      "remaining": 10,
       "status": "available",
       "tide": "10물",
       "my_booking": false,
