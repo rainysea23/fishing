@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-09-02T06:48:10.926213+09:00",
-  "last_changed_at": "2026-09-02T06:48:10.926213+09:00",
-  "updated_at": "2026-09-02T06:48:10.926213+09:00",
+  "last_run_at": "2026-09-02T09:15:54.528067+09:00",
+  "last_changed_at": "2026-09-02T09:15:54.528067+09:00",
+  "updated_at": "2026-09-02T09:15:54.528067+09:00",
   "reservations": {},
   "gagaho_reservations": {
     "20260902": {
@@ -29,26 +29,6 @@
       "remaining": 1,
       "status": "available",
       "tide": "조금",
-      "my_booking": false,
-      "companions": [],
-      "fish": "주꾸미",
-      "fish_type": ""
-    },
-    "20260905": {
-      "date": "20260905",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "무시",
-      "my_booking": false,
-      "companions": [],
-      "fish": "주꾸미",
-      "fish_type": ""
-    },
-    "20260906": {
-      "date": "20260906",
-      "remaining": null,
-      "status": "no_data",
-      "tide": "1물",
       "my_booking": false,
       "companions": [],
       "fish": "주꾸미",
@@ -86,7 +66,7 @@
     },
     "20260910": {
       "date": "20260910",
-      "remaining": 21,
+      "remaining": 10,
       "status": "available",
       "tide": "5물",
       "my_booking": false,
@@ -226,8 +206,8 @@
     },
     "20260924": {
       "date": "20260924",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "5물",
       "my_booking": false,
       "companions": [],
@@ -1054,7 +1034,7 @@
     },
     "20260916": {
       "date": "20260916",
-      "remaining": 2,
+      "remaining": 1,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
