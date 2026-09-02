@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-09-02T18:38:52.994415+09:00",
-  "last_changed_at": "2026-09-02T18:38:52.994415+09:00",
-  "updated_at": "2026-09-02T18:38:52.994415+09:00",
+  "last_run_at": "2026-09-02T23:30:28.638424+09:00",
+  "last_changed_at": "2026-09-02T23:30:28.638424+09:00",
+  "updated_at": "2026-09-02T23:30:28.638424+09:00",
   "reservations": {
     "20260901": {
       "date": "20260901",
@@ -25,8 +25,8 @@
     },
     "20260903": {
       "date": "20260903",
-      "remaining": 2,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "대객기",
       "my_booking": false,
       "companions": [],
@@ -35,8 +35,8 @@
     },
     "20260904": {
       "date": "20260904",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "조금",
       "my_booking": false,
       "companions": [],
@@ -145,7 +145,7 @@
     },
     "20260915": {
       "date": "20260915",
-      "remaining": 9,
+      "remaining": 7,
       "status": "available",
       "tide": "11물",
       "my_booking": false,
@@ -215,7 +215,7 @@
     },
     "20260922": {
       "date": "20260922",
-      "remaining": 12,
+      "remaining": 10,
       "status": "available",
       "tide": "3물",
       "my_booking": false,
@@ -805,8 +805,8 @@
     },
     "20261120": {
       "date": "20261120",
-      "remaining": 3,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "3물",
       "my_booking": false,
       "companions": [],
@@ -965,6 +965,26 @@
       "fish": "주꾸미",
       "fish_type": ""
     },
+    "20260905": {
+      "date": "20260905",
+      "remaining": 0,
+      "status": "full",
+      "tide": "무시",
+      "my_booking": false,
+      "companions": [],
+      "fish": "주꾸미",
+      "fish_type": ""
+    },
+    "20260906": {
+      "date": "20260906",
+      "remaining": 0,
+      "status": "full",
+      "tide": "1물",
+      "my_booking": false,
+      "companions": [],
+      "fish": "주꾸미",
+      "fish_type": ""
+    },
     "20260907": {
       "date": "20260907",
       "remaining": 0,
@@ -987,8 +1007,8 @@
     },
     "20260909": {
       "date": "20260909",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "4물",
       "my_booking": false,
       "companions": [],
