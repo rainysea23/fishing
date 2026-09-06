@@ -229,6 +229,9 @@ def _crawl_site(base_url, reservation_url, label=""):
                 resp.encoding = "utf-8"
                 soup = BeautifulSoup(resp.text, "lxml")
                 day_divs = soup.find_all("div", id=re.compile(r"^new-div-\d{8}$"))
+                if not day_divs:
+                    # 200 OK여도 예약 div가 없으면 점검/차단/에러 페이지 — 실패로 처리해 재시도
+                    raise RuntimeError("빈 응답 — 예약 div 없음 (점검/차단 페이지 의심)")
                 for date_str, info in _parse_divs(day_divs).items():
                     if date_str not in all_data:
                         all_data[date_str] = info
@@ -305,6 +308,9 @@ def _crawl_sunsang24(base_url, reservation_url, label, ship_filter=None):
 
                 # 각 날짜별 테이블 파싱
                 day_tables = soup.find_all("table", id=re.compile(r"^d\d{4}-\d{2}-\d{2}$"))
+                if not day_tables:
+                    # 200 OK여도 날짜 테이블이 없으면 점검/차단/에러 페이지 — 실패로 처리해 재시도
+                    raise RuntimeError("빈 응답 — 날짜 테이블 없음 (점검/차단 페이지 의심)")
                 api_count = 0
                 count = 0
                 for tbl in day_tables:
@@ -917,6 +923,20 @@ def main():
     gagaho_data = crawl_gagaho()
     print("=== 카리스마호 크롤링 ===")
     charisma_data = crawl_charisma()
+
+    # 빈/불완전 크롤링 가드 — 기존 데이터가 있는데 새 결과가 크게 줄었으면 기존 데이터 유지
+    # (사이트 점검·차단으로 빈 응답이 와도 정상 페이지를 빈 데이터로 덮어쓰지 않도록)
+    for label, new_data, old_data in [
+        ("지도호", jido_data, old_jido),
+        ("가가호", gagaho_data, old_gagaho),
+        ("카리스마호", charisma_data, old_charisma),
+    ]:
+        if old_data and len(new_data) < len(old_data) // 2:
+            print(f"  [{label}] 크롤링 결과 비정상 ({len(new_data)}일) — 기존 데이터({len(old_data)}일) 유지",
+                  file=sys.stderr)
+            # 새로 수집한 날짜가 우선, 수집 못한 날짜만 기존 데이터로 채움
+            for k, v in old_data.items():
+                new_data.setdefault(k, v)
 
     # 카리스마호 수동 지정 병합 (API 인증 불가 대응)
     for ds, manual in CHARISMA_MANUAL.items():
