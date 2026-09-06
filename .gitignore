@@ -4,3 +4,8 @@ __pycache__/
 *.tmp
 claude_deep.bat
 .claude_deep.cmd
+
+# 개인 키 — 절대 커밋 금지
+*.key
+*.pem
+id_rsa*
