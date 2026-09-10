@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-09-10T20:21:07.711075+09:00",
-  "last_changed_at": "2026-09-10T20:21:07.711075+09:00",
-  "updated_at": "2026-09-10T20:21:07.711075+09:00",
+  "last_run_at": "2026-09-11T01:25:55.884681+09:00",
+  "last_changed_at": "2026-09-11T01:25:55.884681+09:00",
+  "updated_at": "2026-09-11T01:25:55.884681+09:00",
   "reservations": {
     "20260901": {
       "date": "20260901",
@@ -935,16 +935,6 @@
     }
   },
   "gagaho_reservations": {
-    "20260910": {
-      "date": "20260910",
-      "remaining": 0,
-      "status": "full",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "주꾸미",
-      "fish_type": ""
-    },
     "20260911": {
       "date": "20260911",
       "remaining": 0,
@@ -997,7 +987,7 @@
     },
     "20260916": {
       "date": "20260916",
-      "remaining": 20,
+      "remaining": 19,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
@@ -1097,8 +1087,8 @@
     },
     "20260926": {
       "date": "20260926",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "7물",
       "my_booking": false,
       "companions": [],
@@ -1107,8 +1097,8 @@
     },
     "20260927": {
       "date": "20260927",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "8물",
       "my_booking": false,
       "companions": [],
@@ -1757,16 +1747,6 @@
     }
   },
   "charisma_reservations": {
-    "20260910": {
-      "date": "20260910",
-      "remaining": 0,
-      "status": "full",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
-    },
     "20260911": {
       "date": "20260911",
       "remaining": 0,
@@ -1957,7 +1937,7 @@
     },
     "20260929": {
       "date": "20260929",
-      "remaining": 6,
+      "remaining": 5,
       "status": "available",
       "tide": "10물",
       "my_booking": false,
@@ -1979,8 +1959,8 @@
     },
     "20261001": {
       "date": "20261001",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "12물",
       "my_booking": false,
       "companions": [],
@@ -2113,8 +2093,8 @@
     },
     "20261014": {
       "date": "20261014",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 3,
+      "status": "available",
       "tide": "10물",
       "my_booking": false,
       "companions": [],
