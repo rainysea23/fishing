@@ -11,8 +11,10 @@ git checkout main 2>/dev/null || true
 git fetch origin
 git reset --hard origin/main
 
-export TELEGRAM_BOT_TOKEN="8956265432:AAEZ8dthVr40CxsqxuZbYdV_GZDgEnGL-Xw"
-export TELEGRAM_CHAT_ID="5472071056"
+# 텔레그램 토큰은 커밋 금지 (과거 유출로 회전함) — VM 홈의 ~/telegram_env.sh에서 읽음
+if [ -f ~/telegram_env.sh ]; then
+  . ~/telegram_env.sh
+fi
 
 sleep $((RANDOM % 600))
 

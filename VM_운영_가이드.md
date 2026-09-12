@@ -182,13 +182,12 @@ chmod +x ~/run_crawler.sh
 ```bash
 # VM에서
 cd ~/fishing
-export TELEGRAM_BOT_TOKEN="8956265432:AAEZ8dthVr40CxsqxuZbYdV_GZDgEnGL-Xw"
-export TELEGRAM_CHAT_ID="5472071056"
+. ~/telegram_env.sh    # 토큰은 VM 홈의 이 파일에만 보관 (공개 저장소에 커밋 금지)
 python3 scripts/main.py
 ```
 
 > **의미**:
-> - `export` → 환경변수 설정 (텔레그램 봇 인증 정보)
+> - `. ~/telegram_env.sh` → 텔레그램 봇 인증 정보(토큰·채팅ID) 로드 — 토큰 유출 방지를 위해 저장소에는 넣지 않음
 > - `python3 scripts/main.py` → 크롤러 실행
 > - 결과: `index.html`, `data.json` 파일이 갱신되고, 텔레그램으로 알림 발송
 
