@@ -17,6 +17,9 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_NOTIFY: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+      # 지도호(newjidoho.com)는 해외 IP에 한국과 다른(오래된) 데이터를 서빙함.
+      # Actions에서는 지도호 크롤을 건너뛰고 기존(한국뷰) 데이터 유지 — 지도호는 한국 IP(PC/VM)가 갱신.
+      SKIP_JIDO: '1'
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:

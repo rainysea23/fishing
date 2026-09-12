@@ -31,6 +31,10 @@ RESERVATION_URL = JIDO_URL
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
+# 같은 알람(배·날짜·유형·값)을 이 시간(시간 단위) 안에는 재발송하지 않음
+# push 실패로 데이터가 뒤처져도 매시간 같은 알람이 반복되는 스팸 방지
+ALERT_DEDUPE_HOURS = int(os.environ.get("ALERT_DEDUPE_HOURS", "6"))
+ALERT_STATE_FILE   = ".alert_state.json"
 KST = timezone(timedelta(hours=9))
 
 # 내 예약 이름 (파란색 ★ 내예약 표시)
@@ -832,6 +836,45 @@ function switchTab(tab){{
 
 # ─── 텔레그램 ────────────────────────────────────────────────
 
+def _load_alert_state():
+    """알람 발송 이력 로드 (.alert_state.json — git 무시, VM에서는 reset --hard에도 유지)"""
+    try:
+        with open(ALERT_STATE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_alert_state(state):
+    try:
+        with open(ALERT_STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+def _parse_iso(s):
+    """ISO 문자열 → KST datetime, 파싱 실패 시 과거(정리 대상)"""
+    try:
+        t = datetime.fromisoformat(s)
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=KST)
+        return t
+    except Exception:
+        return datetime(1970, 1, 1, tzinfo=KST)
+
+
+def _alert_deduped(key, state):
+    """key 알람이 ALERT_DEDUPE_HOURS 시간 내 발송된 적 있으면 True"""
+    last = state.get(key, "")
+    try:
+        if (datetime.now(KST) - _parse_iso(last)).total_seconds() < ALERT_DEDUPE_HOURS * 3600:
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def send_telegram(message):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         print("텔레그램 미설정 — 알림 생략")
@@ -875,26 +918,47 @@ def notify_changes(new_data, old_data, korean_holidays, label="지도호", res_u
         rem_str = f"{new_remaining}명" if new_remaining is not None else "빈자리"
 
         if old_status == "full" and new_status == "available":
-            alerts.append(f"🆕 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 빈자리 생겼습니다! {rem_str}")
+            alerts.append((f"{ds}|{label}|new_seat|{new_remaining}",
+                           f"🆕 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 빈자리 생겼습니다! {rem_str}"))
 
         elif old_status == "available" and new_status == "available":
             if old_remaining is not None and new_remaining is not None:
                 if new_remaining > old_remaining:
-                    alerts.append(f"📈 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 증가")
+                    alerts.append((f"{ds}|{label}|change|{old_remaining}>{new_remaining}",
+                                   f"📈 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 증가"))
                 elif new_remaining < old_remaining:
-                    alerts.append(f"📉 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 감소")
+                    alerts.append((f"{ds}|{label}|change|{old_remaining}>{new_remaining}",
+                                   f"📉 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] {old_remaining}명→{new_remaining}명으로 감소"))
 
         elif old_status == "no_data" and new_status == "available":
-            alerts.append(f"📅 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 예약 오픈! {rem_str}")
+            alerts.append((f"{ds}|{label}|open|{new_remaining}",
+                           f"📅 {d.year}/{d.month}/{d.day}({wd}) [{dtype}] 예약 오픈! {rem_str}"))
 
     if alerts:
-        msg = (
-            f"🎣 <b>{label} 빈자리 변경 알림</b>\n\n"
-            + "\n".join(alerts)
-            + f"\n\n<a href='{res_url}'>👉 예약하러 가기</a>"
-        )
-        send_telegram(msg)
-        print(f"[{label}] 변경 알림 {len(alerts)}건 전송")
+        # 중복 방지: 최근 ALERT_DEDUPE_HOURS 시간 내 같은 알람은 억제
+        state = _load_alert_state()
+        now = datetime.now(KST)
+        cutoff = now - timedelta(hours=max(24, ALERT_DEDUPE_HOURS * 2))
+        state = {k: v for k, v in state.items() if _parse_iso(v) >= cutoff}
+        fresh = []
+        suppressed = 0
+        for key, text in alerts:
+            if _alert_deduped(key, state):
+                suppressed += 1
+                continue
+            state[key] = now.isoformat()
+            fresh.append(text)
+        if fresh:
+            _save_alert_state(state)
+            msg = (
+                f"🎣 <b>{label} 빈자리 변경 알림</b>\n\n"
+                + "\n".join(fresh)
+                + f"\n\n<a href='{res_url}'>👉 예약하러 가기</a>"
+            )
+            send_telegram(msg)
+            print(f"[{label}] 변경 알림 {len(fresh)}건 전송")
+        else:
+            print(f"[{label}] 동일 알람 {suppressed}건 억제 (최근 {ALERT_DEDUPE_HOURS}시간 내 발송 이력)")
     else:
         print(f"[{label}] 변경 없음 - 알림 생략")
 
@@ -917,8 +981,14 @@ def main():
         except Exception:
             pass
 
-    print("=== 지도호 크롤링 ===")
-    jido_data = crawl_reservations()
+    if os.environ.get("SKIP_JIDO") == "1":
+        # 해외 IP(Actions)는 지도호 사이트가 한국과 다른(오래된) 데이터를 주므로
+        # 기존 데이터를 유지하고 크롤링을 건너뜀 — 지도호는 한국 IP(PC/VM)만 수집
+        print("=== 지도호 크롤링 스킵 (SKIP_JIDO=1 — 기존 데이터 유지) ===")
+        jido_data = dict(old_jido)
+    else:
+        print("=== 지도호 크롤링 ===")
+        jido_data = crawl_reservations()
     print("=== 가가호 크롤링 ===")
     gagaho_data = crawl_gagaho()
     print("=== 카리스마호 크롤링 ===")

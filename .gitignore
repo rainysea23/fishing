@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+.alert_state.json
 .claude/
 *.tmp
 claude_deep.bat
