@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-09-17T17:09:02.388460+09:00",
-  "last_changed_at": "2026-09-17T17:09:02.388460+09:00",
-  "updated_at": "2026-09-17T17:09:02.388460+09:00",
+  "last_run_at": "2026-09-17T18:04:13.787811+09:00",
+  "last_changed_at": "2026-09-17T18:04:13.787811+09:00",
+  "updated_at": "2026-09-17T18:04:13.787811+09:00",
   "reservations": {
     "20260901": {
       "date": "20260901",
@@ -355,8 +355,8 @@
     },
     "20261006": {
       "date": "20261006",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 4,
+      "status": "available",
       "tide": "2물",
       "my_booking": false,
       "companions": [],
@@ -495,8 +495,8 @@
     },
     "20261020": {
       "date": "20261020",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "1물",
       "my_booking": false,
       "companions": [],
@@ -505,8 +505,8 @@
     },
     "20261021": {
       "date": "20261021",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 1,
+      "status": "available",
       "tide": "2물",
       "my_booking": false,
       "companions": [],
@@ -575,7 +575,7 @@
     },
     "20261028": {
       "date": "20261028",
-      "remaining": 9,
+      "remaining": 10,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -595,8 +595,8 @@
     },
     "20261030": {
       "date": "20261030",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "11물",
       "my_booking": false,
       "companions": [],
@@ -1017,7 +1017,7 @@
     },
     "20260925": {
       "date": "20260925",
-      "remaining": 10,
+      "remaining": 11,
       "status": "available",
       "tide": "6물",
       "my_booking": false,
@@ -1979,8 +1979,8 @@
     },
     "20261015": {
       "date": "20261015",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 4,
+      "status": "available",
       "tide": "11물",
       "my_booking": false,
       "companions": [],
