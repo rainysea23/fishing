@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-10-09T23:00:45.214277+09:00",
-  "last_changed_at": "2026-10-09T23:00:45.214277+09:00",
-  "updated_at": "2026-10-09T23:00:45.214277+09:00",
+  "last_run_at": "2026-10-10T00:01:00.476997+09:00",
+  "last_changed_at": "2026-10-10T00:01:00.476997+09:00",
+  "updated_at": "2026-10-10T00:01:00.476997+09:00",
   "reservations": {
     "20261001": {
       "date": "20261001",
@@ -85,13 +85,13 @@
     },
     "20261009": {
       "date": "20261009",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "5물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
-      "fish_type": "출조"
+      "fish": "",
+      "fish_type": ""
     },
     "20261010": {
       "date": "20261010",
@@ -635,18 +635,6 @@
     }
   },
   "charisma_reservations": {
-    "20261009": {
-      "date": "20261009",
-      "remaining": 0,
-      "status": "full",
-      "tide": "5물",
-      "my_booking": false,
-      "companions": [
-        "박완교"
-      ],
-      "fish": "갑오징어",
-      "fish_type": "루어,선상,지깅"
-    },
     "20261010": {
       "date": "20261010",
       "remaining": 0,
