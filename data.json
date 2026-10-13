@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-10-13T18:06:18.261700+09:00",
-  "last_changed_at": "2026-10-13T17:03:05.084685+09:00",
-  "updated_at": "2026-10-13T18:06:18.261700+09:00",
+  "last_run_at": "2026-10-13T19:09:53.690861+09:00",
+  "last_changed_at": "2026-10-13T19:09:53.690861+09:00",
+  "updated_at": "2026-10-13T19:09:53.690861+09:00",
   "reservations": {
     "20261001": {
       "date": "20261001",
@@ -195,8 +195,8 @@
     },
     "20261020": {
       "date": "20261020",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "1물",
       "my_booking": false,
       "companions": [],
@@ -781,8 +781,8 @@
     },
     "20261027": {
       "date": "20261027",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "8물",
       "my_booking": false,
       "companions": [],
@@ -791,7 +791,7 @@
     },
     "20261028": {
       "date": "20261028",
-      "remaining": 1,
+      "remaining": 2,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -1117,7 +1117,7 @@
     },
     "20261129": {
       "date": "20261129",
-      "remaining": 8,
+      "remaining": 7,
       "status": "available",
       "tide": "12물",
       "my_booking": false,
