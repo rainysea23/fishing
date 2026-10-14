@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-10-14T11:00:51.381599+09:00",
-  "last_changed_at": "2026-10-14T10:38:33.519338+09:00",
-  "updated_at": "2026-10-14T11:00:51.381599+09:00",
+  "last_run_at": "2026-10-14T12:10:27.807871+09:00",
+  "last_changed_at": "2026-10-14T12:10:27.807871+09:00",
+  "updated_at": "2026-10-14T12:10:27.807871+09:00",
   "reservations": {
     "20261001": {
       "date": "20261001",
@@ -145,13 +145,13 @@
     },
     "20261015": {
       "date": "20261015",
-      "remaining": 0,
-      "status": "full",
+      "remaining": null,
+      "status": "no_data",
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
-      "fish_type": "출조"
+      "fish": "",
+      "fish_type": ""
     },
     "20261016": {
       "date": "20261016",
