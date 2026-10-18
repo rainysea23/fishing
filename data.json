@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-10-18T14:54:39.929618+09:00",
-  "last_changed_at": "2026-10-18T14:00:47.223569+09:00",
-  "updated_at": "2026-10-18T14:54:39.929618+09:00",
+  "last_run_at": "2026-10-18T15:04:30.524279+09:00",
+  "last_changed_at": "2026-10-18T15:04:30.524279+09:00",
+  "updated_at": "2026-10-18T15:04:30.524279+09:00",
   "reservations": {
     "20261001": {
       "date": "20261001",
@@ -355,8 +355,8 @@
     },
     "20261105": {
       "date": "20261105",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "2물",
       "my_booking": false,
       "companions": [],
@@ -410,8 +410,8 @@
       "tide": "8물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
-      "fish_type": ""
+      "fish": "광어",
+      "fish_type": "다운샷"
     },
     "20261111": {
       "date": "20261111",
@@ -420,8 +420,8 @@
       "tide": "9물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
-      "fish_type": ""
+      "fish": "광어",
+      "fish_type": "다운샷"
     },
     "20261112": {
       "date": "20261112",
@@ -430,8 +430,8 @@
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
-      "fish_type": ""
+      "fish": "광어",
+      "fish_type": "다운샷"
     },
     "20261113": {
       "date": "20261113",
@@ -540,7 +540,7 @@
       "tide": "6물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "갑오징어,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261124": {
@@ -550,7 +550,7 @@
       "tide": "7물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "갑오징어,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261125": {
@@ -560,7 +560,7 @@
       "tide": "8물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "갑오징어,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261126": {
@@ -570,7 +570,7 @@
       "tide": "9물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "갑오징어,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261127": {
@@ -580,7 +580,7 @@
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "갑오징어,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261128": {
