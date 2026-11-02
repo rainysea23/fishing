@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-02T12:05:49.878152+09:00",
-  "last_changed_at": "2026-11-02T12:05:49.878152+09:00",
-  "updated_at": "2026-11-02T12:05:49.878152+09:00",
+  "last_run_at": "2026-11-02T13:41:09.508424+09:00",
+  "last_changed_at": "2026-11-02T13:41:09.508424+09:00",
+  "updated_at": "2026-11-02T13:41:09.508424+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -75,8 +75,8 @@
     },
     "20261108": {
       "date": "20261108",
-      "remaining": 1,
-      "status": "available",
+      "remaining": 0,
+      "status": "full",
       "tide": "5물",
       "my_booking": false,
       "companions": [],
@@ -135,8 +135,8 @@
     },
     "20261114": {
       "date": "20261114",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "한객기",
       "my_booking": false,
       "companions": [],
@@ -175,7 +175,7 @@
     },
     "20261118": {
       "date": "20261118",
-      "remaining": 12,
+      "remaining": 15,
       "status": "available",
       "tide": "1물",
       "my_booking": false,
@@ -205,8 +205,8 @@
     },
     "20261121": {
       "date": "20261121",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 10,
+      "status": "available",
       "tide": "4물",
       "my_booking": false,
       "companions": [],
@@ -215,8 +215,8 @@
     },
     "20261122": {
       "date": "20261122",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 7,
+      "status": "available",
       "tide": "5물",
       "my_booking": false,
       "companions": [],
@@ -419,7 +419,7 @@
     },
     "20261111": {
       "date": "20261111",
-      "remaining": 14,
+      "remaining": 15,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
@@ -471,8 +471,8 @@
     },
     "20261116": {
       "date": "20261116",
-      "remaining": 0,
-      "status": "full",
+      "remaining": 2,
+      "status": "available",
       "tide": "조금",
       "my_booking": false,
       "companions": [],
