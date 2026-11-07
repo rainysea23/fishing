@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-08T03:04:45.964233+09:00",
-  "last_changed_at": "2026-11-08T00:18:59.933055+09:00",
-  "updated_at": "2026-11-08T03:04:45.964233+09:00",
+  "last_run_at": "2026-11-08T04:46:43.823369+09:00",
+  "last_changed_at": "2026-11-08T04:46:43.823369+09:00",
+  "updated_at": "2026-11-08T04:46:43.823369+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -111,17 +111,17 @@
       "my_booking": false,
       "companions": [],
       "fish": "광어",
-      "fish_type": "다운샷"
+      "fish_type": "다운샷,갑오징어 병행"
     },
     "20261112": {
       "date": "20261112",
-      "remaining": null,
-      "status": "no_data",
+      "remaining": 13,
+      "status": "available",
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "",
-      "fish_type": ""
+      "fish": "광어",
+      "fish_type": "다운샷,갑오징어 병행"
     },
     "20261113": {
       "date": "20261113",
