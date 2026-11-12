@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-12T17:09:44.965558+09:00",
-  "last_changed_at": "2026-11-12T16:12:22.065971+09:00",
-  "updated_at": "2026-11-12T17:09:44.965558+09:00",
+  "last_run_at": "2026-11-12T19:20:34.229595+09:00",
+  "last_changed_at": "2026-11-12T19:20:34.229595+09:00",
+  "updated_at": "2026-11-12T19:20:34.229595+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -342,7 +342,7 @@
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261114": {
@@ -354,7 +354,7 @@
       "companions": [
         "박완교"
       ],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261115": {
@@ -364,7 +364,7 @@
       "tide": "13물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261116": {
@@ -374,7 +374,7 @@
       "tide": "조금",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261117": {
@@ -384,7 +384,7 @@
       "tide": "무시",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261118": {
@@ -394,7 +394,7 @@
       "tide": "1물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261119": {
@@ -404,12 +404,12 @@
       "tide": "2물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261120": {
       "date": "20261120",
-      "remaining": 7,
+      "remaining": 6,
       "status": "available",
       "tide": "3물",
       "my_booking": false,
@@ -426,7 +426,7 @@
       "companions": [
         "박완교"
       ],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261122": {
@@ -436,7 +436,7 @@
       "tide": "5물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "광어,갑오징어",
       "fish_type": "루어,선상,지깅"
     },
     "20261123": {
@@ -446,8 +446,8 @@
       "tide": "6물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261124": {
       "date": "20261124",
@@ -456,8 +456,8 @@
       "tide": "7물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261125": {
       "date": "20261125",
@@ -466,8 +466,8 @@
       "tide": "8물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261126": {
       "date": "20261126",
@@ -476,8 +476,8 @@
       "tide": "9물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261127": {
       "date": "20261127",
@@ -486,8 +486,8 @@
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261128": {
       "date": "20261128",
@@ -496,8 +496,8 @@
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261129": {
       "date": "20261129",
@@ -506,8 +506,8 @@
       "tide": "12물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     },
     "20261130": {
       "date": "20261130",
@@ -516,8 +516,8 @@
       "tide": "13물",
       "my_booking": false,
       "companions": [],
-      "fish": "주꾸미,갑오징어",
-      "fish_type": "루어,선상,지깅"
+      "fish": "광어,우럭",
+      "fish_type": "다운샷,루어,선상,어초,지깅"
     }
   }
 }
