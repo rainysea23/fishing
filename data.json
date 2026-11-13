@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-13T15:05:21.361507+09:00",
-  "last_changed_at": "2026-11-13T13:02:10.699632+09:00",
-  "updated_at": "2026-11-13T15:05:21.361507+09:00",
+  "last_run_at": "2026-11-13T16:04:47.557670+09:00",
+  "last_changed_at": "2026-11-13T16:04:47.557670+09:00",
+  "updated_at": "2026-11-13T16:04:47.557670+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -175,22 +175,22 @@
     },
     "20261118": {
       "date": "20261118",
-      "remaining": 14,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "1물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261119": {
       "date": "20261119",
-      "remaining": 19,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "2물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261120": {
@@ -379,7 +379,7 @@
     },
     "20261118": {
       "date": "20261118",
-      "remaining": 9,
+      "remaining": 4,
       "status": "available",
       "tide": "1물",
       "my_booking": false,
