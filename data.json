@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-18T09:03:44.972028+09:00",
-  "last_changed_at": "2026-11-18T07:52:32.846756+09:00",
-  "updated_at": "2026-11-18T09:03:44.972028+09:00",
+  "last_run_at": "2026-11-18T10:04:34.351650+09:00",
+  "last_changed_at": "2026-11-18T10:04:34.351650+09:00",
+  "updated_at": "2026-11-18T10:04:34.351650+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -195,22 +195,22 @@
     },
     "20261120": {
       "date": "20261120",
-      "remaining": 10,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "3물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261121": {
       "date": "20261121",
-      "remaining": 1,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "4물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261122": {
@@ -310,7 +310,7 @@
       "tide": "조금",
       "my_booking": false,
       "companions": [],
-      "fish": "왕 주꾸미,광어 우럭다운샷",
+      "fish": "왕 주꾸미, 낙지,광어 우럭다운샷",
       "fish_type": ""
     },
     "20261202": {
@@ -320,7 +320,7 @@
       "tide": "무시",
       "my_booking": false,
       "companions": [],
-      "fish": "왕 주꾸미",
+      "fish": "낙지",
       "fish_type": ""
     }
   },
@@ -409,7 +409,7 @@
     },
     "20261126": {
       "date": "20261126",
-      "remaining": 15,
+      "remaining": 14,
       "status": "available",
       "tide": "9물",
       "my_booking": false,
