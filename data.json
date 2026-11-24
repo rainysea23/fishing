@@ -1,7 +1,7 @@
 {
-  "last_run_at": "2026-11-24T15:00:44.393213+09:00",
-  "last_changed_at": "2026-11-24T14:01:10.458247+09:00",
-  "updated_at": "2026-11-24T15:00:44.393213+09:00",
+  "last_run_at": "2026-11-24T16:05:57.239813+09:00",
+  "last_changed_at": "2026-11-24T16:05:57.239813+09:00",
+  "updated_at": "2026-11-24T16:05:57.239813+09:00",
   "reservations": {
     "20261101": {
       "date": "20261101",
@@ -265,52 +265,52 @@
     },
     "20261127": {
       "date": "20261127",
-      "remaining": 20,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "10물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어,광어 우럭다운샷",
+      "fish": "",
       "fish_type": ""
     },
     "20261128": {
       "date": "20261128",
-      "remaining": 6,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "11물",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261129": {
       "date": "20261129",
-      "remaining": 12,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "한객기",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261130": {
       "date": "20261130",
-      "remaining": 17,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "대객기",
       "my_booking": false,
       "companions": [],
-      "fish": "갑오징어",
+      "fish": "",
       "fish_type": ""
     },
     "20261201": {
       "date": "20261201",
-      "remaining": 16,
-      "status": "available",
+      "remaining": null,
+      "status": "no_data",
       "tide": "조금",
       "my_booking": false,
       "companions": [],
-      "fish": "낙지",
+      "fish": "",
       "fish_type": ""
     },
     "20261202": {
