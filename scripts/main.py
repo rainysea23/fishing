@@ -51,6 +51,9 @@ MY_NAMES = MY_OWN_NAMES + COMPANION_NAMES
 CHARISMA_MANUAL = {
 }
 
+# 크롤링·달력 표시 범위 — 2027년 6월 말까지 확인 (2026-11-28 요청)
+CRAWL_END_DATE = date(2027, 6, 30)
+
 
 def get_korean_holidays():
     """한국 공휴일 반환 (holidays 라이브러리 + 하드코딩 병합)"""
@@ -98,6 +101,14 @@ def get_korean_holidays():
         (2026, 10, 3, "개천절"), (2026, 10, 5, "개천절 대체휴일"),
         (2026, 10, 9, "한글날"),
         (2026, 12, 25, "성탄절"),
+        # 2027 (크롤링 범위 2027-06-30까지 — 6월 이후는 범위 확장 시 추가)
+        (2027, 1, 1, "신정"),
+        (2027, 2, 5, "설날 전날"), (2027, 2, 6, "설날"), (2027, 2, 7, "설날 다음날"),
+        (2027, 2, 8, "설날 대체휴일"),
+        (2027, 3, 1, "삼일절"),
+        (2027, 5, 5, "어린이날"),
+        (2027, 5, 13, "부처님오신날"),
+        (2027, 6, 6, "현충일"),
     ]
     for y, m, d, name in entries:
         h[date(y, m, d)] = name
@@ -206,7 +217,7 @@ def _crawl_site(base_url, reservation_url, label=""):
     }
 
     today = date.today()
-    end_date = date(today.year, 11, 30)
+    end_date = CRAWL_END_DATE
 
     chunks = []
     cur = date(today.year, today.month, 1)
@@ -285,7 +296,7 @@ def _crawl_sunsang24(base_url, reservation_url, label, ship_filter=None):
     }
 
     today = date.today()
-    end_date = date(today.year, 11, 30)
+    end_date = CRAWL_END_DATE
     end_ym = end_date.year * 100 + end_date.month
 
     months = []
@@ -637,12 +648,14 @@ def generate_html(jido_data, charisma_data, korean_holidays, last_run_at=None, l
         "charisma": charisma_data,
     }
     boat_months = {key: [] for key in BOATS}
-    for offset in range(6):
-        m = today.month + offset
-        y = today.year + (m - 1) // 12
-        m = ((m - 1) % 12) + 1
+    cur = date(today.year, today.month, 1)
+    while cur <= CRAWL_END_DATE:
         for key, data in boat_data.items():
-            boat_months[key].append(gen_boat_month(y, m, today, data, key, korean_holidays))
+            boat_months[key].append(gen_boat_month(cur.year, cur.month, today, data, key, korean_holidays))
+        m = cur.month + 1
+        y = cur.year + (m - 1) // 12
+        m = ((m - 1) % 12) + 1
+        cur = date(y, m, 1)
 
     tab_blocks = []
     for key in ["jido", "charisma"]:
